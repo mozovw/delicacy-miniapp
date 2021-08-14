@@ -1,0 +1,21 @@
+#support:
+#  swagger:
+#    basePackage: com.china
+#    description: 接口文档
+#    email: libai@china.com
+#    excludePath:
+#      - /user/**
+#      - /doc.html
+#      - /webjars/**
+#      - /webjars/**
+#      - /v2/api-docs
+#      - /swagger-ui.html
+#      - /swagger-resources/**
+#      - /actuator/**
+#    name: libai
+#    termsOfServiceUrl: localhost:8080
+#    title: 接口文档
+#    url: www.china.com
+#    version: v1.0.0
+#  advisor:
+#    restScanPackages: execution(public * com.china..*Rest.*(..))

@@ -1,0 +1,40 @@
+server:
+  port: 8091
+  servlet:
+    context-path: /admin
+  tomcat:
+    connection-timeout: 10s
+
+security:
+  oauth2:
+    resource:
+      id: miniapp
+spring:
+  profiles:
+    active: dev
+  application:
+    name: miniapp
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+support:
+  swagger:
+    basePackage: com.delicacy
+    description: MINIAPP接口文档
+    email: libai@china.com
+    excludePath:
+      - /user/**
+      - /doc.html
+      - /webjars/**
+      - /webjars/**
+      - /v2/api-docs
+      - /swagger-ui.html
+      - /swagger-resources/**
+      - /actuator/**
+    name: libai
+    termsOfServiceUrl: localhost:8091
+    title: MINIAPP接口文档
+    url: www.china.com
+    version: v1.0.0
+  advisor:
+    restScanPackages: execution(public * com.delicacy..*Rest.*(..))
