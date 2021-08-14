@@ -1,6 +1,6 @@
 package com.delicacy.auth.server.advice;
 
-import com.delicacy.auth.server.entity.R;
+import com.delicacy.auth.server.entity.ResponseResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -27,12 +27,12 @@ public class RestResponseAdvice implements ResponseBodyAdvice {
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         if (o == null) {
             return o;
-        } else if (o instanceof R) {
+        } else if (o instanceof ResponseResult) {
             return o;
         } else if (o instanceof Throwable) {
             return o;
         }
-        return R.ok(o);
+        return ResponseResult.ok(o);
     }
 
 

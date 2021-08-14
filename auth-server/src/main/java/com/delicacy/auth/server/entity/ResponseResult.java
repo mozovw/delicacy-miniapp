@@ -12,47 +12,47 @@ import java.util.List;
 
 @Data
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class R<T> implements Serializable {
+public class ResponseResult<T> implements Serializable {
     private boolean success;
-    private List<E> errors;
+    private List<ErrorResult> errors;
     private T data;
 
-    public R() {
+    public ResponseResult() {
         this.success = true;
     }
 
-    public static <T> R ok() {
-        return new R(true);
+    public static <T> ResponseResult ok() {
+        return new ResponseResult(true);
     }
 
-    public static <T> R ok(T data) {
-        return new R(true, data);
+    public static <T> ResponseResult ok(T data) {
+        return new ResponseResult(true, data);
     }
 
-    public static <T> R fail(String code, String message) {
-        R r = new R(false);
+    public static <T> ResponseResult fail(String code, String message) {
+        ResponseResult r = new ResponseResult(false);
         r.addError(code, message);
         return r;
     }
 
-    public static <T> R fail(List<E> errors) {
-        R r = new R(false);
+    public static <T> ResponseResult fail(List<ErrorResult> errors) {
+        ResponseResult r = new ResponseResult(false);
         r.addErrors(errors);
         return r;
     }
 
 
-    public R(boolean success, T data) {
+    public ResponseResult(boolean success, T data) {
         this.success = success;
         this.data = data;
     }
 
-    public R(T data) {
+    public ResponseResult(T data) {
         this.success = true;
         this.data = data;
     }
 
-    public void addError(E errorInfo) {
+    public void addError(ErrorResult errorInfo) {
         this.success = false;
         if (this.errors == null) {
             this.errors = new ArrayList();
@@ -61,11 +61,11 @@ public class R<T> implements Serializable {
         this.errors.add(errorInfo);
     }
 
-    private void addErrors(List<E> errorInfoList) {
+    private void addErrors(List<ErrorResult> errorInfoList) {
         if (errorInfoList != null && errorInfoList.size() > 0) {
             Iterator var2 = errorInfoList.iterator();
             while (var2.hasNext()) {
-                E errorInfo = (E) var2.next();
+                ErrorResult errorInfo = (ErrorResult) var2.next();
                 this.addError(errorInfo);
             }
         }
@@ -73,7 +73,7 @@ public class R<T> implements Serializable {
     }
 
     private void addError(String errorCode, String errorMsg) {
-        E errorInfo = new E(errorCode, errorMsg);
+        ErrorResult errorInfo = new ErrorResult(errorCode, errorMsg);
         this.addError(errorInfo);
     }
 
