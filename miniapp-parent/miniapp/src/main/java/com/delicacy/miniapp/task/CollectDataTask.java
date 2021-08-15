@@ -27,8 +27,8 @@ public class CollectDataTask {
     private XueQiuService xueQiuService;
 
 
-    @Scheduled(fixedRate = Integer.MAX_VALUE)
-    public void start(){
+//    @Scheduled(fixedRate = Integer.MAX_VALUE)
+//    public void start(){
 //        new Thread(()-> aijijinService.runFundRank()).start();
 ////        new Thread(()-> aijijinService.runFundPosition()).start();
 //        new Thread(()-> {
@@ -38,7 +38,9 @@ public class CollectDataTask {
 //        xueQiuService.runAStock();
 //        xueQiuService.runAStockDesc();
 //        aijijinService.runFundRank();
-    }
+//        aijijinService.runFundPosition();
+//        xueQiuService.runAStockReport();
+//    }
 
     // 工作日16点执行
     @Scheduled(cron = "0 0 15 * * ? ")

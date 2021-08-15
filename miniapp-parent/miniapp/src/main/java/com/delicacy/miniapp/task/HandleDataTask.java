@@ -28,12 +28,12 @@ public class HandleDataTask {
     @Autowired
     private FinanceValuationService financeValuationService;
 
-    @Scheduled(fixedRate = Integer.MAX_VALUE)
-    public void start(){
+//    @Scheduled(fixedRate = Integer.MAX_VALUE)
+//    public void start(){
 //        financeValuationService.runValuation();
-        financeComprehensiveService.runComprehensive();
+//        financeComprehensiveService.runComprehensive();
 //        financeFundSelectionService.runFundSelection();
-    }
+//    }
 
 
     @Scheduled(cron = "0 0 20 * * ? ")

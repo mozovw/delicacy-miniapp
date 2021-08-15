@@ -145,8 +145,8 @@ public class AnalysisMoneyServiceImpl extends AbstractService implements Analysi
                     if (jingliruntongbizengzhang < 0 || yingyeshourutongbizengzhang < 0 || jingliruntongbizengzhang_report < jingliruntongbizengzhang)
                         return;
                     // 估值计算
-                    String s1 = valueCalc(jinglirun, "0.12", String.valueOf(jingliruntongbizengzhang / 100), String.valueOf(jingliruntongbizengzhang / 200), 5);
-                    String s2 = valueCalc(jinglirun, "0.12", String.valueOf(yingyeshourutongbizengzhang / 100), String.valueOf(yingyeshourutongbizengzhang / 200), 5);
+                    String s1 = valueCalc(jinglirun, "0.08", String.valueOf(jingliruntongbizengzhang / 100), String.valueOf(jingliruntongbizengzhang / 200), 3);
+                    String s2 = valueCalc(jinglirun, "0.08", String.valueOf(yingyeshourutongbizengzhang / 100), String.valueOf(yingyeshourutongbizengzhang / 200), 3);
                     Map map = stockMap.get(e.getKey().toString());
                     if (map == null) return;
                     String shiyinglv_ttm = map.get("shiyinglv_TTM").toString();
@@ -158,6 +158,7 @@ public class AnalysisMoneyServiceImpl extends AbstractService implements Analysi
                     LinkedHashMap linkedHashMap = new LinkedHashMap();
                     linkedHashMap.put("symbol", s);
                     linkedHashMap.put("name", name);
+                    linkedHashMap.put("report_date", mapList.get(0).get("report_date"));
                     linkedHashMap.put("shiyinglv_TTM", shiyinglv_ttm);
                     linkedHashMap.put("zongguben", zongguben);
                     linkedHashMap.put("zongshizhi", zongshizhi);
@@ -178,7 +179,7 @@ public class AnalysisMoneyServiceImpl extends AbstractService implements Analysi
 //                .fileName("guzhi")
 //                .path("D:\\data\\")
 //                .subffix("md").build().writer(map);
-        mapReportList.forEach(e -> addData(e, analysis_table, "symbol", "name", "shiyinglv_TTM", "zongguben", "zongshizhi", "current", "yy_zongshizhi", "yy_current", "jl_zongshizhi", "jl_current"));
+        mapReportList.forEach(e -> addData(e, analysis_table));
     }
 
     private List<String>  getYYYYList(DateTime offset) {

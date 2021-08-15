@@ -86,8 +86,8 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         String format = DateUtil.format(now, "yyyy");
         int year = Integer.parseInt(format);
 
-        List<String> list = null;
-        for (int i = year; i > 0; i--) {
+        List<String> list = new ArrayList<>();
+        for (int i = year; i > 2015; i--) {
             String s = i + "年报";
             Query query = new Query();
             query.addCriteria(new Criteria().andOperator(
@@ -96,6 +96,8 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
             if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
                 list = Arrays.asList(s, (i + 1) + "一季报",i  + "三季报");
                 break;
+            }else {
+                list.add(s);
             }
 
             s = i + "三季报";
@@ -106,6 +108,8 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
             if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
                 list = Arrays.asList(s, i + "年报");
                 break;
+            }else {
+                list.add(s);
             }
 
             s = i + "中报";
@@ -116,6 +120,8 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
             if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
                 list = Arrays.asList(s, i  + "三季报");
                 break;
+            }else {
+                list.add(s);
             }
 
             s = i + "一季报";
@@ -126,6 +132,8 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
             if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
                 list = Arrays.asList(s, (i - 1) + "年报",i+"二季报");
                 break;
+            }else {
+                list.add(s);
             }
         }
         return list;
