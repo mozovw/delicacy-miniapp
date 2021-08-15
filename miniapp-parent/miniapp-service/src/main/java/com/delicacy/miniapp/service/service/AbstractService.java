@@ -51,7 +51,8 @@ public abstract class AbstractService {
             Pattern pattern = Pattern.compile("^.*" + text + ".*$", Pattern.CASE_INSENSITIVE);
             query.addCriteria(new Criteria().orOperator(
                     Criteria.where("symbol").in(text),
-                    Criteria.where("name").regex(pattern)
+                    Criteria.where("name").regex(pattern),
+                    Criteria.where("report_date").regex(pattern)
                     )
             );
         }

@@ -70,9 +70,9 @@ public class CollectDataTask {
     }
 
     // 每周六2点执行一次
-    @Scheduled(cron = "0 0 2 * * ?")
+    @Scheduled(cron = "0 0 1 * 1-4,7-8,10 ? ")
     public void startAStockReport() {
-        startAtSATURDAY(e -> xueQiuService.runAStockReport());
+        startAtWeekDay(e -> xueQiuService.runAStockReport());
 
     }
 
