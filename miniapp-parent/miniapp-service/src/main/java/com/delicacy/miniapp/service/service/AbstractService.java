@@ -1,6 +1,5 @@
 package com.delicacy.miniapp.service.service;
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.delicacy.common.utils.ObjectUtils;
 import com.delicacy.miniapp.service.entity.PageResult;
@@ -38,10 +37,7 @@ public abstract class AbstractService {
     @Autowired
     protected MongoTemplate mongoTemplate;
 
-
-
-
-    protected PageResult<Map> getMapPageResult(Map params,String table) {
+    protected PageResult<Map> getMapPageResult(Map params, String table) {
         String pageNum = params.get("pageNum").toString();
         String pageSize = params.get("pageSize").toString();
         Object o = params.get("query");
@@ -60,6 +56,7 @@ public abstract class AbstractService {
         PageResult<Map> mapPageResult = PageUtils.pageInfo(maps, Integer.parseInt(pageNum), Integer.parseInt(pageSize));
         return mapPageResult;
     }
+
     protected boolean isEmpty(Object s) {
         return ObjectUtils.isEmpty(s);
     }
@@ -78,6 +75,7 @@ public abstract class AbstractService {
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(pipeline)
                 .runAsync();
+
     }
 
     protected void runSpider(Request request, PageProcessor pageProcessor, String collectName, String... params) {
@@ -224,8 +222,8 @@ public abstract class AbstractService {
     }
 
     protected List<Map> addAllMap(List<Map> maps1, List<Map> maps2) {
-        List<Map> a = maps1.size()>maps2.size()?maps1:maps2;
-        List<Map> b = maps1.size()>maps2.size()?maps2:maps1;
+        List<Map> a = maps1.size() > maps2.size() ? maps1 : maps2;
+        List<Map> b = maps1.size() > maps2.size() ? maps2 : maps1;
         List<Map> collect = b.stream().map(e -> {
             Map map = new LinkedHashMap();
             String symbol = e.get("symbol").toString();

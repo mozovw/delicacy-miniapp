@@ -66,6 +66,7 @@ public class WebDriverPool {
             ChromeOptions options = new ChromeOptions();
             options.addArguments(args);
             this.mDriver = new ChromeDriver(options);
+            return;
         }
 
         property = System.getProperties().getProperty("webdriver.gecko.driver");

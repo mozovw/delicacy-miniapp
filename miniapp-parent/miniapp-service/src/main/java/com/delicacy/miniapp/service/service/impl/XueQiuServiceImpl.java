@@ -8,6 +8,7 @@ import com.delicacy.miniapp.service.processor.xueqiu.StockProcessor;
 import com.delicacy.miniapp.service.processor.xueqiu.StockReportProcessor;
 import com.delicacy.miniapp.service.service.AbstractService;
 import com.delicacy.miniapp.service.service.XueQiuService;
+import org.openqa.selenium.WebDriver;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;

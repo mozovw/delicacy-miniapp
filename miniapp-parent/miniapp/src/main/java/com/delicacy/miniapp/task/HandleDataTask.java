@@ -28,11 +28,11 @@ public class HandleDataTask {
     @Autowired
     private FinanceValuationService financeValuationService;
 
-    @Scheduled(fixedRate = Integer.MAX_VALUE)
+//    @Scheduled(fixedRate = Integer.MAX_VALUE)
     public void start(){
-        financeValuationService.runValuation();
+//        financeValuationService.runValuation();
 //        financeComprehensiveService.runComprehensive();
-//        financeFundSelectionService.runFundSelection();
+        financeFundSelectionService.runFundSelection();
     }
 
 
