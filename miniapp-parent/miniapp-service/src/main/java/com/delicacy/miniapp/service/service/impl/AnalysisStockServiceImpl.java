@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
@@ -84,6 +86,16 @@ public class AnalysisStockServiceImpl extends AbstractService implements Analysi
             if (!isEmpty(xueqiu_astock_desc)){
                 e.put("platename",xueqiu_astock_desc.get(0).get("platename"));
             }
+            if (!isEmpty(e.get("52zhouzuidi"))&&!isEmpty(e.get("52zhouzuigao"))&&!isEmpty(e.get("current"))){
+                String aa = String.valueOf(e.get("52zhouzuidi"));
+                String bb = String.valueOf(e.get("52zhouzuigao"));
+                String cc = String.valueOf(e.get("current"));
+                String s = BigDecimal.valueOf(Double.parseDouble(cc) - Double.parseDouble(aa)).divide(
+                             BigDecimal.valueOf(Double.parseDouble(bb) - Double.parseDouble(aa)),3, RoundingMode.UP
+                    ).setScale(3, RoundingMode.UP).toString();
+                e.put("gaodi",s);
+            }
+
 
             e.put("symbol", String.valueOf(e.get("symbol")).replace("SZ", "").replace("SH", ""));
             addData(e, analysis_table);

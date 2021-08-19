@@ -28,10 +28,10 @@ public class HandleDataTask {
     @Autowired
     private FinanceValuationService financeValuationService;
 
-//    @Scheduled(fixedRate = Integer.MAX_VALUE)
+     @Scheduled(fixedRate = Integer.MAX_VALUE)
     public void start(){
-//        financeValuationService.runValuation();
-//        financeComprehensiveService.runComprehensive();
+          financeValuationService.runValuation();
+         financeComprehensiveService.runComprehensive();
         financeFundSelectionService.runFundSelection();
     }
 
@@ -53,7 +53,7 @@ public class HandleDataTask {
 
     private void randomTime() {
         try {
-            int x = (int) (Math.random() * 3600 + 1);
+            int x = (int) (Math.random() * 1000 + 1);
             TimeUnit.SECONDS.sleep(x);
         } catch (InterruptedException e) {
             e.printStackTrace();

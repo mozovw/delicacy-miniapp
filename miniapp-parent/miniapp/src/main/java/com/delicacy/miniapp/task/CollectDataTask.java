@@ -27,7 +27,7 @@ public class CollectDataTask {
     private XueQiuService xueQiuService;
 
 
-    @Scheduled(fixedRate = Integer.MAX_VALUE)
+//    @Scheduled(fixedRate = Integer.MAX_VALUE)
     public void start(){
 //        new Thread(()-> aijijinService.runFundRank()).start();
 ////        new Thread(()-> aijijinService.runFundPosition()).start();
@@ -37,9 +37,9 @@ public class CollectDataTask {
 //        }).start();
 //        xueQiuService.runAStock();
 //        xueQiuService.runAStockDesc();
-//        aijijinService.runFundRank();
+        aijijinService.runFundRank();
 //        aijijinService.runFundPosition();
-        startAtWeekDay(e -> xueQiuService.runAStockReport());
+//         startAtWeekDay(e -> xueQiuService.runAStockReport());
     }
 
     // 工作日16点执行
@@ -85,7 +85,7 @@ public class CollectDataTask {
 
     private void randomTime() {
         try {
-            int x = (int) (Math.random() * 10 + 1);
+            int x = (int) (Math.random() * 10000 + 1);
             TimeUnit.SECONDS.sleep(x);
         } catch (InterruptedException e) {
             e.printStackTrace();

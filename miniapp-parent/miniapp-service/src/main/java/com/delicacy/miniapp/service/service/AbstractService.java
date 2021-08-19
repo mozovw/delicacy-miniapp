@@ -101,6 +101,9 @@ public abstract class AbstractService {
     protected Site getSite(String domain) {
         return Site
                 .me()
+                .setRetryTimes(2)
+                .setRetrySleepTime(5000)
+                .setTimeOut(10000)
                 .setDomain(domain)
                 .setSleepTime(5000)
                 .setCharset("utf-8")
