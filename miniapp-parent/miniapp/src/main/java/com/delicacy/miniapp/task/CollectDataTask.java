@@ -37,7 +37,7 @@ public class CollectDataTask {
 //        }).start();
 //        xueQiuService.runAStock();
 //        xueQiuService.runAStockDesc();
-        aijijinService.runFundRank();
+//        aijijinService.runFundRank();
 //        aijijinService.runFundPosition();
 //         startAtWeekDay(e -> xueQiuService.runAStockReport());
     }
@@ -48,10 +48,10 @@ public class CollectDataTask {
         startAtWeekDay(e -> aijijinService.runFundRank());
     }
 
-    // 每周六2点执行一次
-    @Scheduled(cron = "0 0 2 * * ?")
+    // 每周5 2点执行一次
+    @Scheduled(cron = "0 0 15 * * ?")
     public void startFundPosition() {
-        startAtSATURDAY(e -> aijijinService.runFundPosition());
+        startAtFRIDAY(e -> aijijinService.runFundPosition());
     }
 
     @Scheduled(cron = "0 0 15 * * ? ")
@@ -59,7 +59,7 @@ public class CollectDataTask {
         startAtWeekDay(e -> xueQiuService.runAStock());
     }
 
-    @Scheduled(cron = "0 0 3 1 * ? ")
+    @Scheduled(cron = "0 0 15 1 * ? ")
     public void startAStockDesc() {
          xueQiuService.runAStockDesc();
     }
@@ -69,11 +69,9 @@ public class CollectDataTask {
         startAtWeekDay(e -> xueQiuService.runHKStock());
     }
 
-    // 每周六2点执行一次
-    @Scheduled(cron = "0 0 1 * 1-4,7-8,10 ?")
+    @Scheduled(cron = "0 0 17 * 1-4,7-8,10 ?")
     public void startAStockReport() {
         startAtWeekDay(e -> xueQiuService.runAStockReport());
-
     }
 
     // 每周六2点执行一次
@@ -85,7 +83,7 @@ public class CollectDataTask {
 
     private void randomTime() {
         try {
-            int x = (int) (Math.random() * 10000 + 1);
+            int x = (int) (Math.random() * 1000 + 1);
             TimeUnit.SECONDS.sleep(x);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -100,6 +98,14 @@ public class CollectDataTask {
     private void startAtSATURDAY(Consumer consumer) {
         Week week = DateUtil.dayOfWeekEnum(DateTime.now());
         if (week.equals(Week.SATURDAY)) {
+            randomTime();
+            consumer.accept(null);
+        }
+    }
+
+    private void startAtFRIDAY(Consumer consumer) {
+        Week week = DateUtil.dayOfWeekEnum(DateTime.now());
+        if (week.equals(Week.FRIDAY)) {
             randomTime();
             consumer.accept(null);
         }
