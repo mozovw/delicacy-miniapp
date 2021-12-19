@@ -73,6 +73,8 @@ public class FinanceFundSelectionServiceImpl extends AbstractService implements 
 
             String huanbi_bilv_5 = getHuanbiBilv5(lists, key);
 
+            String huanbi_bilv_3 = getHuanbiBilv3(lists, key);
+
             String huanbi_bilv = getHuanbiBilv(lists, key);
 
 
@@ -81,6 +83,7 @@ public class FinanceFundSelectionServiceImpl extends AbstractService implements 
                 map.put("symbol", symbol);
                 map.put("name", name);
                 map.put("huanbi_bilv", huanbi_bilv);
+                map.put("huanbi_bilv_3", huanbi_bilv_3);
                 map.put("huanbi_bilv_5", huanbi_bilv_5);
                 map.put("sum", sum);
                 mapList.add(map);
@@ -106,6 +109,27 @@ public class FinanceFundSelectionServiceImpl extends AbstractService implements 
         Integer count1 = keyValue.get(key);
 
         lists.subList(5,10).stream().forEach(ee -> {
+            nextCalc(ee, keyValue, key);
+        });
+        Integer count2 = keyValue.get(key);
+
+        String huanbi_bilv_5;
+        if (count1!=null && count2!=null) {
+            huanbi_bilv_5 = BigDecimalUtils.div((count1 - count2), count2).toString();
+        } else {
+            huanbi_bilv_5 = "0";
+        }
+        return huanbi_bilv_5;
+    }
+
+    private String getHuanbiBilv3(List<List<Map>> lists, String key) {
+        Map<String, Integer> keyValue = new LinkedHashMap<>();
+        lists.subList(0,3).stream().forEach(ee -> {
+            nextCalc(ee, keyValue, key);
+        });
+        Integer count1 = keyValue.get(key);
+
+        lists.subList(3,6).stream().forEach(ee -> {
             nextCalc(ee, keyValue, key);
         });
         Integer count2 = keyValue.get(key);

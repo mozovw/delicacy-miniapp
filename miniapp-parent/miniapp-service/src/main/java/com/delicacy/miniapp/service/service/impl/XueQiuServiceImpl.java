@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.delicacy.miniapp.service.processor.xueqiu.StockDescProcessor;
 import com.delicacy.miniapp.service.processor.xueqiu.StockProcessor;
+import com.delicacy.miniapp.service.processor.xueqiu.StockProfitReportProcessor;
 import com.delicacy.miniapp.service.processor.xueqiu.StockReportProcessor;
 import com.delicacy.miniapp.service.service.AbstractService;
 import com.delicacy.miniapp.service.service.XueQiuService;
@@ -48,98 +49,31 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
 
     @Override
     public void runAStockReport() {
-
-        clearBefore4Year("xueqiu_astock_report");
+        String collection = "xueqiu_astock_report";
+        clearBefore4Year(collection);
 
         Request request = getRequest(URL_ASTOCK);
         StockReportProcessor processor = new StockReportProcessor();
-        List<String> reportList = getReportList();
+        List<String> reportList = getReportList(collection);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, "xueqiu_astock_report", "symbol", "report_date");
     }
 
-    private void clearBefore4Year(String table) {
-        Query query = new Query();
-        String[] values = getRemoveReportList().toArray(new String[0]);
-        query.addCriteria(
-                Criteria.where("report_date").in(values)
-        );
-        mongoTemplate.remove(query,table);
+    @Override
+    public void runAStockProfitReport() {
+        String collection = "xueqiu_astock_profit_report";
+
+        clearBefore4Year(collection);
+        Request request = getRequest(URL_ASTOCK);
+        StockProfitReportProcessor processor = new StockProfitReportProcessor();
+        List<String> reportList = getReportList(collection);
+        processor.setAppointReportDates(reportList.toArray(new String[0]));
+        processor.setSite(getSite("xueqiu.com"));
+        runSpiderForMap2(request, processor, "xueqiu_astock_profit_report", "symbol", "report_date");
     }
 
-    private List<String> getRemoveReportList() {
-        DateTime offset = DateUtil.offset(DateTime.now(), DateField.YEAR, -4);
-        String format = DateUtil.format(offset, "yyyy");
-        int year = Integer.parseInt(format);
-        List<String> list = new ArrayList<>();
-        for (int i = year; i > year-10; i--) {
-            list.add( i + "年报");
-            list.add( i + "三季报");
-            list.add( i + "中报");
-            list.add( i + "一季报");
-        }
-        return list;
-    }
 
-    private List<String> getReportList() {
-        DateTime now = DateTime.now();
-        String format = DateUtil.format(now, "yyyy");
-        int year = Integer.parseInt(format);
-
-        List<String> list = new ArrayList<>();
-        for (int i = year; i > 2015; i--) {
-            String s = i + "年报";
-            Query query = new Query();
-            query.addCriteria(new Criteria().andOperator(
-                    Criteria.where("report_date").in(s)
-            ));
-            if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
-                list = Arrays.asList(s, (i + 1) + "一季报",i  + "三季报");
-                break;
-            }else {
-                list.add(s);
-            }
-
-            s = i + "三季报";
-            query = new Query();
-            query.addCriteria(new Criteria().andOperator(
-                    Criteria.where("report_date").in(s)
-            ));
-            if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
-                list = Arrays.asList(s, i + "年报");
-                break;
-            }else {
-                list.add(s);
-            }
-
-            s = i + "中报";
-            query = new Query();
-            query.addCriteria(new Criteria().andOperator(
-                    Criteria.where("report_date").in(s)
-            ));
-            if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
-                list = Arrays.asList(s, i  + "三季报");
-                break;
-            }else {
-                list.add(s);
-            }
-
-            s = i + "一季报";
-            query = new Query();
-            query.addCriteria(new Criteria().andOperator(
-                    Criteria.where("report_date").in(s)
-            ));
-            if (mongoTemplate.exists(query,"xueqiu_astock_report")) {
-                list = Arrays.asList(s, (i - 1) + "年报",i+"二季报");
-                break;
-            }else {
-                list.add(s);
-            }
-        }
-        return list;
-
-    }
 
     @Override
     public void runHKStock() {
@@ -152,10 +86,12 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
 
     @Override
     public void runHKStockReport() {
-        clearBefore4Year("xueqiu_hkstock_report");
+        String collection = "xueqiu_hkstock_report";
+
+        clearBefore4Year(collection);
         Request request = getRequest(URL_HKSTOCK);
         StockReportProcessor processor = new StockReportProcessor();
-        List<String> reportList = getReportList();
+        List<String> reportList = getReportList(collection);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, "xueqiu_hkstock_report", "symbol", "report_date");

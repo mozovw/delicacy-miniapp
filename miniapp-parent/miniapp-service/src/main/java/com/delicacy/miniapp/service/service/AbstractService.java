@@ -1,5 +1,7 @@
 package com.delicacy.miniapp.service.service;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.delicacy.common.utils.ObjectUtils;
 import com.delicacy.miniapp.service.entity.PageResult;
@@ -33,6 +35,89 @@ import java.util.stream.Collectors;
  **/
 public abstract class AbstractService {
     protected static int threadNum = Runtime.getRuntime().availableProcessors();
+
+    protected List<String> getRemoveReportList() {
+        DateTime offset = DateUtil.offset(DateTime.now(), DateField.YEAR, -4);
+        String format = DateUtil.format(offset, "yyyy");
+        int year = Integer.parseInt(format);
+        List<String> list = new ArrayList<>();
+        for (int i = year; i > year-10; i--) {
+            list.add( i + "年报");
+            list.add( i + "三季报");
+            list.add( i + "中报");
+            list.add( i + "一季报");
+        }
+        return list;
+    }
+
+    protected void clearBefore4Year(String table) {
+        Query query = new Query();
+        String[] values = getRemoveReportList().toArray(new String[0]);
+        query.addCriteria(
+                Criteria.where("report_date").in(values)
+        );
+        mongoTemplate.remove(query,table);
+    }
+
+    protected List<String> getReportList(String collection) {
+
+        DateTime now = DateTime.now();
+        String format = DateUtil.format(now, "yyyy");
+        int year = Integer.parseInt(format);
+
+        List<String> list = new ArrayList<>();
+        for (int i = year; i > 2015; i--) {
+            String s = i + "年报";
+            Query query = new Query();
+            query.addCriteria(new Criteria().andOperator(
+                    Criteria.where("report_date").in(s)
+            ));
+            if (mongoTemplate.exists(query, collection)) {
+                list = Arrays.asList(s, (i + 1) + "一季报",i  + "三季报");
+                break;
+            }else {
+                list.add(s);
+            }
+
+            s = i + "三季报";
+            query = new Query();
+            query.addCriteria(new Criteria().andOperator(
+                    Criteria.where("report_date").in(s)
+            ));
+            if (mongoTemplate.exists(query, collection)) {
+                list = Arrays.asList(s, i + "年报");
+                break;
+            }else {
+                list.add(s);
+            }
+
+            s = i + "中报";
+            query = new Query();
+            query.addCriteria(new Criteria().andOperator(
+                    Criteria.where("report_date").in(s)
+            ));
+            if (mongoTemplate.exists(query, collection)) {
+                list = Arrays.asList(s, i  + "三季报");
+                break;
+            }else {
+                list.add(s);
+            }
+
+            s = i + "一季报";
+            query = new Query();
+            query.addCriteria(new Criteria().andOperator(
+                    Criteria.where("report_date").in(s)
+            ));
+            if (mongoTemplate.exists(query, collection)) {
+                list = Arrays.asList(s, (i - 1) + "年报",i+"二季报");
+                break;
+            }else {
+                list.add(s);
+            }
+        }
+        return list;
+
+    }
 
     @Autowired
     protected MongoTemplate mongoTemplate;

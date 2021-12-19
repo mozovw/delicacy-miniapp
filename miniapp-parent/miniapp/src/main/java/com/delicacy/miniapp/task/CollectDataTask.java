@@ -27,39 +27,40 @@ public class CollectDataTask {
     private XueQiuService xueQiuService;
 
 
-//    @Scheduled(fixedRate = Integer.MAX_VALUE)
+    @Scheduled(fixedRate = Integer.MAX_VALUE)
     public void start(){
 //        new Thread(()-> aijijinService.runFundRank()).start();
 ////        new Thread(()-> aijijinService.runFundPosition()).start();
-//        new Thread(()-> {
-////            xueQiuService.runAStock();
-////            xueQiuService.runAStockReport();
-//        }).start();
+        new Thread(()-> {
+//            xueQiuService.runAStock();
+//            xueQiuService.runAStockReport();
+        }).start();
 //        xueQiuService.runAStock();
 //        xueQiuService.runAStockDesc();
+        xueQiuService.runAStockProfitReport();
 //        aijijinService.runFundRank();
 //        aijijinService.runFundPosition();
-//         startAtWeekDay(e -> xueQiuService.runAStockReport());
+
     }
 
     // 工作日16点执行
-    @Scheduled(cron = "0 0 15 * * ? ")
+//    @Scheduled(cron = "0 0 15 * * ? ")
     public void startFundRank() {
         startAtWeekDay(e -> aijijinService.runFundRank());
     }
 
     // 每周5 2点执行一次
-    @Scheduled(cron = "0 0 15 * * ?")
+//    @Scheduled(cron = "0 0 15 * * ?")
     public void startFundPosition() {
         startAtFRIDAY(e -> aijijinService.runFundPosition());
     }
 
-    @Scheduled(cron = "0 0 15 * * ? ")
+//    @Scheduled(cron = "0 0 15 * * ? ")
     public void startAStock() {
         startAtWeekDay(e -> xueQiuService.runAStock());
     }
 
-    @Scheduled(cron = "0 0 15 1 * ? ")
+//    @Scheduled(cron = "0 0 15 1 * ? ")
     public void startAStockDesc() {
          xueQiuService.runAStockDesc();
     }
@@ -69,7 +70,7 @@ public class CollectDataTask {
         startAtWeekDay(e -> xueQiuService.runHKStock());
     }
 
-    @Scheduled(cron = "0 0 17 * 1-4,7-8,10 ?")
+//    @Scheduled(cron = "0 0 17 * 1-4,7-8,10,11 ?")
     public void startAStockReport() {
         startAtWeekDay(e -> xueQiuService.runAStockReport());
     }

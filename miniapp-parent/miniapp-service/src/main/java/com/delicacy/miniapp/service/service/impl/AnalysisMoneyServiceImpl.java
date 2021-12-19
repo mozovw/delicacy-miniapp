@@ -132,7 +132,9 @@ public class AnalysisMoneyServiceImpl extends AbstractService implements Analysi
                 if (!reportOptional.isPresent()) return;
                 report = reportOptional.get();
                 // 最新的季度
-                Double jingliruntongbizengzhang_report = Double.parseDouble(report.get("jingliruntongbizengzhang").toString());
+                Object jingliruntongbizengzhang1 = report.get("jingliruntongbizengzhang");
+                if(isEmpty(jingliruntongbizengzhang1))return;
+                Double jingliruntongbizengzhang_report = Double.parseDouble(jingliruntongbizengzhang1.toString());
 
                 if (!ObjectUtils.isEmpty(jinglirun)
                         && Double.parseDouble(jinglirun) > 0

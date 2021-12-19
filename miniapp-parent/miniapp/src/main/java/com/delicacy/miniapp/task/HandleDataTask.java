@@ -46,7 +46,7 @@ public class HandleDataTask {
         startAtWeekDay(e -> financeFundSelectionService.runFundSelection());
     }
 
-    @Scheduled(cron = "0 0 20 * 1-4,7-10 ? ")
+    @Scheduled(cron = "0 0 20 * * ? ")
     public void startValuation() {
         startAtWeekDay(e -> financeValuationService.runValuation());
     }
