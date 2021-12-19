@@ -96,6 +96,19 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");
     }
 
+    @Override
+    public void runAStockTopHolders() {
+        String collection = "xueqiu_astock_top_holders";
+
+        clearBeforeNumYear(collection,-1);
+        Request request = getRequest(URL_ASTOCK);
+        StockTopHoldersProcessor processor = new StockTopHoldersProcessor();
+        List<String> reportList = getReportList(collection);
+        processor.setAppointReportDates(reportList.toArray(new String[0]));
+        processor.setSite(getSite("xueqiu.com"));
+        runSpiderForMap2(request, processor, collection, "symbol", "report_date");
+    }
+
 
     @Override
     public void runHKStock() {

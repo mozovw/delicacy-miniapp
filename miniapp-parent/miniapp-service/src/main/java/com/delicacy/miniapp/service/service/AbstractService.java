@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
 public abstract class AbstractService {
     protected static int threadNum = Runtime.getRuntime().availableProcessors();
 
-    protected List<String> getRemoveReportList() {
-        DateTime offset = DateUtil.offset(DateTime.now(), DateField.YEAR, -4);
+    protected List<String> getRemoveReportList(Integer num) {
+        DateTime offset = DateUtil.offset(DateTime.now(), DateField.YEAR, num);
         String format = DateUtil.format(offset, "yyyy");
         int year = Integer.parseInt(format);
         List<String> list = new ArrayList<>();
@@ -50,9 +50,18 @@ public abstract class AbstractService {
         return list;
     }
 
+    protected void clearBeforeNumYear(String table,Integer num) {
+        Query query = new Query();
+        String[] values = getRemoveReportList(num).toArray(new String[0]);
+        query.addCriteria(
+                Criteria.where("report_date").in(values)
+        );
+        mongoTemplate.remove(query,table);
+    }
+
     protected void clearBefore4Year(String table) {
         Query query = new Query();
-        String[] values = getRemoveReportList().toArray(new String[0]);
+        String[] values = getRemoveReportList(-4).toArray(new String[0]);
         query.addCriteria(
                 Criteria.where("report_date").in(values)
         );
@@ -217,7 +226,9 @@ public abstract class AbstractService {
         if (mongoTemplate.collectionExists(analysis)) {
             String yyyy_mm_dd = DateUtil.format(new Date(), "yyyy_MM_dd");
             String fullName = analysis + "_" + yyyy_mm_dd;
-            if (mongoTemplate.collectionExists(fullName)) return false;
+            if (mongoTemplate.collectionExists(fullName)){
+                return false;
+            }
             mongoTemplate.getCollection(analysis).renameCollection(new MongoNamespace(dbName, fullName));
             Query query = new Query();
             List<Map> maps = mongoTemplate.find(query, Map.class, fullName);
@@ -236,7 +247,9 @@ public abstract class AbstractService {
         Query query = new Query();
         long count = mongoTemplate.count(query, Map.class, collectionName);
         for (int i = 0; i < count; i++) {
-            if (i % 10 != 0) continue;
+            if (i % 10 != 0) {
+                continue;
+            }
             if (!ObjectUtils.isEmpty(orderName)) {
                 Sort datetime = Sort.by(Sort.Direction.DESC, orderName);
                 query = query.with(datetime);
@@ -253,7 +266,9 @@ public abstract class AbstractService {
 
 
     protected Double percentData(String string) {
-        if (string.equals("--")) throw new IllegalArgumentException("exists '--'");
+        if ("--".equals(string)) {
+            throw new IllegalArgumentException("exists '--'");
+        }
         double value;
         if (string.contains("万%")) {
             value = Double.parseDouble(string.replace("万%", ""));
@@ -267,7 +282,9 @@ public abstract class AbstractService {
     }
 
     protected Double dayData(String string) {
-        if (ObjectUtils.isEmpty(string)) return 0.0;
+        if (ObjectUtils.isEmpty(string)){
+            return 0.0;
+        }
         double value;
         if (string.contains("万天")) {
             value = Double.parseDouble(string.replace("万天", "")) * 10000;
@@ -280,7 +297,9 @@ public abstract class AbstractService {
     }
 
     protected Double numData(String string) {
-        if (ObjectUtils.isEmpty(string)) return 0.0;
+        if (ObjectUtils.isEmpty(string)) {
+            return 0.0;
+        }
         double value;
         if (string.contains("万次")) {
             value = Double.parseDouble(string.replace("万次", ""));
@@ -293,7 +312,9 @@ public abstract class AbstractService {
     }
 
     protected Double moneyData(String string) {
-        if (string.equals("--")) throw new IllegalArgumentException("exists '--'");
+        if ("--".equals(string)) {
+            throw new IllegalArgumentException("exists '--'");
+        }
         double value;
         if (string.contains("万亿")) {
             value = Double.parseDouble(string.replace("万亿", "")) * 1000000000000L;
