@@ -37,7 +37,9 @@ public class CollectDataTask {
         }).start();
 //        xueQiuService.runAStock();
 //        xueQiuService.runAStockDesc();
-        xueQiuService.runAStockProfitReport();
+//        xueQiuService.runAStockProfitReport();
+//        xueQiuService.runAStockCashFlowReport();
+        xueQiuService.runAStockBalanceReport();
 //        aijijinService.runFundRank();
 //        aijijinService.runFundPosition();
 

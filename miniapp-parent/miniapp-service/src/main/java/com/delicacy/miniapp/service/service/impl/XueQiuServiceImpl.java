@@ -3,10 +3,7 @@ package com.delicacy.miniapp.service.service.impl;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import com.delicacy.miniapp.service.processor.xueqiu.StockDescProcessor;
-import com.delicacy.miniapp.service.processor.xueqiu.StockProcessor;
-import com.delicacy.miniapp.service.processor.xueqiu.StockProfitReportProcessor;
-import com.delicacy.miniapp.service.processor.xueqiu.StockReportProcessor;
+import com.delicacy.miniapp.service.processor.xueqiu.*;
 import com.delicacy.miniapp.service.service.AbstractService;
 import com.delicacy.miniapp.service.service.XueQiuService;
 import org.openqa.selenium.WebDriver;
@@ -57,7 +54,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         List<String> reportList = getReportList(collection);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
-        runSpiderForMap2(request, processor, "xueqiu_astock_report", "symbol", "report_date");
+        runSpiderForMap2(request, processor, collection, "symbol", "report_date");
     }
 
     @Override
@@ -70,9 +67,34 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         List<String> reportList = getReportList(collection);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
-        runSpiderForMap2(request, processor, "xueqiu_astock_profit_report", "symbol", "report_date");
+        runSpiderForMap2(request, processor, collection, "symbol", "report_date");
     }
 
+    @Override
+    public void runAStockCashFlowReport() {
+        String collection = "xueqiu_astock_cash_flow_report";
+
+        clearBefore4Year(collection);
+        Request request = getRequest(URL_ASTOCK);
+        StockCashFlowReportProcessor processor = new StockCashFlowReportProcessor();
+        List<String> reportList = getReportList(collection);
+        processor.setAppointReportDates(reportList.toArray(new String[0]));
+        processor.setSite(getSite("xueqiu.com"));
+        runSpiderForMap2(request, processor, collection, "symbol", "report_date");
+    }
+
+    @Override
+    public void runAStockBalanceReport() {
+        String collection = "xueqiu_astock_balance_report";
+
+        clearBefore4Year(collection);
+        Request request = getRequest(URL_ASTOCK);
+        StockBalanceReportProcessor processor = new StockBalanceReportProcessor();
+        List<String> reportList = getReportList(collection);
+        processor.setAppointReportDates(reportList.toArray(new String[0]));
+        processor.setSite(getSite("xueqiu.com"));
+        runSpiderForMap2(request, processor, collection, "symbol", "report_date");
+    }
 
 
     @Override

@@ -10,6 +10,8 @@ public interface XueQiuService {
     void runAStockDesc();
     void runAStockReport();
     void runAStockProfitReport();
+    void runAStockCashFlowReport();
+    void runAStockBalanceReport();
 
     void runHKStock();
     void runHKStockReport();
