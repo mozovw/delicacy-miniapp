@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
 import com.delicacy.miniapp.service.service.AijijinService;
+import com.delicacy.miniapp.service.service.JinrongcaifuService;
 import com.delicacy.miniapp.service.service.XueQiuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -27,6 +28,10 @@ public class CollectDataTask {
     private XueQiuService xueQiuService;
 
 
+    @Autowired
+    private JinrongcaifuService jinrongcaifuService;
+
+
     @Scheduled(fixedRate = Integer.MAX_VALUE)
     public void start(){
 //        new Thread(()-> aijijinService.runFundRank()).start();
@@ -40,7 +45,9 @@ public class CollectDataTask {
 //        xueQiuService.runAStockProfitReport();
 //        xueQiuService.runAStockCashFlowReport();
 //        xueQiuService.runAStockBalanceReport();
-        xueQiuService.runAStockTopHolders();
+//        xueQiuService.runAStockTopHolders();
+//        xueQiuService.runAstockSkHolderChg();
+        jinrongcaifuService.runForcastReport();
 //        aijijinService.runFundRank();
 //        aijijinService.runFundPosition();
 

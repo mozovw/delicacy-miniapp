@@ -19,7 +19,7 @@ import java.math.RoundingMode;
 import java.util.*;
 
 @Slf4j
-public class StockTopHoldersProcessor extends AbstactProcessor {
+public class StockSkHolderChgProcessor extends AbstactProcessor {
 
 
     static final String URL_POST = "https://stock.xueqiu.com/v5/stock/f10/";
@@ -30,7 +30,7 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
     };
 
     static final String URL_PRE[] = {
-            "https://stock.xueqiu.com/v5/stock/f10/cn/top_holders.json?symbol=%s&locate=%s",
+            "https://stock.xueqiu.com/v5/stock/f10/cn/skholderchg.json?symbol=%s&extend=true&page=1&size=20"
     };
 
     volatile boolean flag = false;
@@ -92,10 +92,6 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
                 return;
             }
             JSONArray jsonArray = jsonObject.getJSONArray("items");
-            JSONArray timesJSONArray = jsonObject.getJSONArray("times");
-            JSONObject timesJSONObject = timesJSONArray.getJSONObject(0);
-            Object reportDate = timesJSONObject.get("name");
-
             LinkedHashMap<Integer, LinkedHashMap<String, String>> mapMain = Maps.newLinkedHashMap();
 
             for (int i = 0; i < jsonArray.size(); i++) {
@@ -103,14 +99,12 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
                 LinkedHashMap map = new LinkedHashMap();
                 map.put("symbol", symbol.replace("SH", "").replace("SZ", ""));
                 if (url.contains("cn")) {
-                    if (appointReportDates.length != 0 && Arrays.stream(appointReportDates).noneMatch(e -> e.equalsIgnoreCase(String.valueOf(reportDate)))) {
-                        continue;
-                    }
-                    map.put("report_date", reportDate);
-                    transfer(map, jsonArrayJSONObject,  "gudongmingcheng","holder_name");
-                    transfer(map, jsonArrayJSONObject, "chigushuliang","held_num");
-                    transfer(map, jsonArrayJSONObject, "chigubili","held_ratio");
-                    transfer(map, jsonArrayJSONObject,  "jiaoshangqibiandong","chg");
+                    transfer(map, jsonArrayJSONObject, "gongsi","name");
+                    transfer(map, jsonArrayJSONObject, "mingcheng","manage_name");
+                    transfer(map, jsonArrayJSONObject, "zhiwei","duty");
+                    map.put("biandongriqi",jsonArrayJSONObject.get("chg_date")==null?"":DateUtil.formatDate(new Date(Long.parseLong(jsonArrayJSONObject.get("chg_date").toString()))));
+                    transfer(map, jsonArrayJSONObject,  "biandonggushu","chg_shares_num");
+                    transfer(map, jsonArrayJSONObject,  "junjia","trans_avg_price");
                 }
                 // todo 没做处理
                 if (url.contains("hk")) {
@@ -159,9 +153,7 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
                 String symbol = e1.get("symbol").toString();
 
                 Arrays.stream(finalUrls).forEach(ee -> {
-                    getTimestampList().forEach(eee->{
-                        collect.add(String.format(ee, symbol, eee));
-                    });
+                    collect.add(String.format(ee, symbol));
                 });
             });
             page.addTargetRequests(collect);

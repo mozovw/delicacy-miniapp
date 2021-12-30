@@ -36,7 +36,38 @@ import java.util.stream.Collectors;
 public abstract class AbstractService {
     protected static int threadNum = Runtime.getRuntime().availableProcessors();
 
-    protected List<String> getRemoveReportList(Integer num) {
+
+    protected List<Date> getLastReportDateList(){
+        List<Date> list = new ArrayList<>();
+        String format = DateUtil.format(DateTime.now(), "MM");
+        String format_year = DateUtil.format(DateTime.now(), "yyyy");
+        String format_year_last = DateUtil.format(DateTime.now(), "yyyy");
+        DateTime dateTime = DateUtil.parseDate(format_year + "-03-31");
+        Integer month = Integer.valueOf(format);
+        switch (month){
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6: {
+                list.add(DateUtil.parseDate(format_year + "-03-31"));
+                list.add(DateUtil.parseDate(format_year_last + "-12-31"));
+            } break;
+            case 7:
+            case 8:
+            case 9:{
+                list.add(DateUtil.parseDate(format_year + "-06-30"));
+            } break;
+            case 10:
+            case 11:
+            case 12: list.add(DateUtil.parseDate(format_year + "-09-30"));break;
+        }
+
+        return list;
+    }
+
+    private List<String> getRemoveReportList(Integer num) {
         DateTime offset = DateUtil.offset(DateTime.now(), DateField.YEAR, num);
         String format = DateUtil.format(offset, "yyyy");
         int year = Integer.parseInt(format);
@@ -68,14 +99,17 @@ public abstract class AbstractService {
         mongoTemplate.remove(query,table);
     }
 
-    protected List<String> getReportList(String collection) {
+    protected List<String> getReportList(String collection,Integer num) {
+        DateTime offset = DateUtil.offset(DateTime.now(), DateField.YEAR, num);
+        String format1 = DateUtil.format(offset, "yyyy");
+        int year1 = Integer.parseInt(format1);
 
         DateTime now = DateTime.now();
         String format = DateUtil.format(now, "yyyy");
         int year = Integer.parseInt(format);
 
         List<String> list = new ArrayList<>();
-        for (int i = year; i > 2015; i--) {
+        for (int i = year; i > year1; i--) {
             String s = i + "年报";
             Query query = new Query();
             query.addCriteria(new Criteria().andOperator(

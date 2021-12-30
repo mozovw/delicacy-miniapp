@@ -51,7 +51,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
 
         Request request = getRequest(URL_ASTOCK);
         StockReportProcessor processor = new StockReportProcessor();
-        List<String> reportList = getReportList(collection);
+        List<String> reportList = getReportList(collection,-4);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");
@@ -64,7 +64,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBefore4Year(collection);
         Request request = getRequest(URL_ASTOCK);
         StockProfitReportProcessor processor = new StockProfitReportProcessor();
-        List<String> reportList = getReportList(collection);
+        List<String> reportList = getReportList(collection,-4);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");
@@ -77,7 +77,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBefore4Year(collection);
         Request request = getRequest(URL_ASTOCK);
         StockCashFlowReportProcessor processor = new StockCashFlowReportProcessor();
-        List<String> reportList = getReportList(collection);
+        List<String> reportList = getReportList(collection,-4);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");
@@ -90,7 +90,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBefore4Year(collection);
         Request request = getRequest(URL_ASTOCK);
         StockBalanceReportProcessor processor = new StockBalanceReportProcessor();
-        List<String> reportList = getReportList(collection);
+        List<String> reportList = getReportList(collection,-4);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");
@@ -100,13 +100,26 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
     public void runAStockTopHolders() {
         String collection = "xueqiu_astock_top_holders";
 
-        clearBeforeNumYear(collection,-1);
+        clearBeforeNumYear(collection,-2);
         Request request = getRequest(URL_ASTOCK);
         StockTopHoldersProcessor processor = new StockTopHoldersProcessor();
-        List<String> reportList = getReportList(collection);
+        List<String> reportList = getReportList(collection,-2);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
-        runSpiderForMap2(request, processor, collection, "symbol", "report_date");
+        runSpiderForMap2(request, processor, collection, "symbol", "report_date","gudongmingcheng");
+    }
+
+    @Override
+    public void runAstockSkHolderChg() {
+        String collection = "xueqiu_astock_sk_holder_chg";
+
+        clearBeforeNumYear(collection,-2);
+        Request request = getRequest(URL_ASTOCK);
+        StockSkHolderChgProcessor processor = new StockSkHolderChgProcessor();
+        List<String> reportList = getReportList(collection,-2);
+        processor.setAppointReportDates(reportList.toArray(new String[0]));
+        processor.setSite(getSite("xueqiu.com"));
+        runSpiderForMap2(request, processor, collection, "symbol", "biandongriqi","mingcheng");
     }
 
 
@@ -126,7 +139,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBefore4Year(collection);
         Request request = getRequest(URL_HKSTOCK);
         StockReportProcessor processor = new StockReportProcessor();
-        List<String> reportList = getReportList(collection);
+        List<String> reportList = getReportList(collection,-4);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, "xueqiu_hkstock_report", "symbol", "report_date");
