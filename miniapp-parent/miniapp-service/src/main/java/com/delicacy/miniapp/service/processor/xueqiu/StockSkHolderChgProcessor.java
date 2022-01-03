@@ -33,49 +33,6 @@ public class StockSkHolderChgProcessor extends AbstactProcessor {
             "https://stock.xueqiu.com/v5/stock/f10/cn/skholderchg.json?symbol=%s&extend=true&page=1&size=20"
     };
 
-    volatile boolean flag = false;
-
-    public void setAppointReportDates(String[] appointReportDates) {
-        this.appointReportDates = appointReportDates;
-    }
-
-    private String appointReportDates[] = {};
-
-    private void transfer(Map page, Object jsonObject, String a, String b) {
-        if (b == null) {
-            page.put(a, null);
-            return;
-        }
-        Object obj = null;
-
-        if (jsonObject instanceof JSONObject) {
-            obj = ((JSONObject) jsonObject).get(b);
-        } else {
-            if (jsonObject != null) {
-                obj = jsonObject;
-            }
-        }
-
-        if (obj == null) {
-            page.put(a, null);
-            return;
-        }
-
-        String string = null;
-        if (obj instanceof String) {
-            string = String.valueOf(obj);
-        } else if (obj instanceof BigDecimal) {
-            string = ((BigDecimal) obj).setScale(3, RoundingMode.HALF_UP).toString();
-        } else if (obj instanceof Long) {
-            string = ((Long) obj).toString();
-        } else if (obj instanceof Integer) {
-            string = ((Integer) obj).toString();
-        } else if (obj instanceof JSONArray) {
-            transfer(page, ((JSONArray) obj).get(0), a, b);
-            return;
-        }
-        page.put(a, string);
-    }
 
     @Override
     public void process(Page page) {
@@ -92,84 +49,32 @@ public class StockSkHolderChgProcessor extends AbstactProcessor {
                 return;
             }
             JSONArray jsonArray = jsonObject.getJSONArray("items");
-            LinkedHashMap<Integer, LinkedHashMap<String, String>> mapMain = Maps.newLinkedHashMap();
+            PageProcessor processor = new PageProcessor(page,jsonArray);
 
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonArrayJSONObject = jsonArray.getJSONObject(i);
-                LinkedHashMap map = new LinkedHashMap();
-                map.put("symbol", symbol.replace("SH", "").replace("SZ", ""));
+                processor.putmap(i,"symbol", symbol.replace("SH", "").replace("SZ", ""));
                 if (url.contains("cn")) {
-                    transfer(map, jsonArrayJSONObject, "gongsi","name");
-                    transfer(map, jsonArrayJSONObject, "mingcheng","manage_name");
-                    transfer(map, jsonArrayJSONObject, "zhiwei","duty");
-                    map.put("biandongriqi",jsonArrayJSONObject.get("chg_date")==null?"":DateUtil.formatDate(new Date(Long.parseLong(jsonArrayJSONObject.get("chg_date").toString()))));
-                    transfer(map, jsonArrayJSONObject,  "biandonggushu","chg_shares_num");
-                    transfer(map, jsonArrayJSONObject,  "junjia","trans_avg_price");
+                    processor.transfer(i, "gongsi","name");
+                    processor.transfer(i, "mingcheng","manage_name");
+                    processor.transfer(i, "zhiwei","duty");
+                    processor.getmap(i).put("biandongriqi",jsonArrayJSONObject.get("chg_date")==null?"":DateUtil.formatDate(new Date(Long.parseLong(jsonArrayJSONObject.get("chg_date").toString()))));
+                    processor.transfer(i,  "biandonggushu","chg_shares_num");
+                    processor.transfer(i,  "junjia","trans_avg_price");
                 }
-                // todo 没做处理
-                if (url.contains("hk")) {
-                    transfer(map, jsonArrayJSONObject, "report_date", "report_name");
-                    Object report_date = map.get("report_date");
-                    if (appointReportDates.length != 0 && Arrays.stream(appointReportDates).noneMatch(e -> e.equalsIgnoreCase(String.valueOf(report_date)))) {
-                        continue;
-                    }
-                }
-
-
-                mapMain.put(i, map);
             }
-
-            page.putField("map", mapMain);
+            processor.process();
 
 
         } else if (!ObjectUtils.isEmpty(page.getRawText())) {
-            if (flag) {
-                return;
-            }
-            Map<String, List<String>> listMap = HttpUtil.decodeParams(url, "utf-8");
-            String market = listMap.get("market").get(0);
-
-
-            String rawText = page.getRawText();
-            JSONObject jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("data").toString();
-            jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("list").toString();
-            JSONArray jsonArray = JSON.parseArray(rawText);
-
-            List<String> collect = new ArrayList<>();
-
-            String[] urls = new String[0];
-            if ("CN".equals(market)) {
-                urls = URL_PRE;
-            }
-            if ("HK".equals(market)) {
-                urls = URL_PRE_HK;
-            }
-
-            String[] finalUrls = urls;
-            jsonArray.stream().forEach(e -> {
-                JSONObject e1 = (JSONObject) e;
-                String symbol = e1.get("symbol").toString();
-
+            String[] finalUrls = URL_PRE;
+            processPage(page,symbol->{
+                List<String> collect = new ArrayList<>();
                 Arrays.stream(finalUrls).forEach(ee -> {
-                    collect.add(String.format(ee, symbol));
+                    collect.add(String.format(ee, symbol, System.currentTimeMillis()));
                 });
+                return collect;
             });
-            page.addTargetRequests(collect);
-            // update flag
-            Map<String, List<String>> stringListMap = HttpUtil.decodeParams(page.getUrl().toString(), "utf-8");
-            long longPage = Long.parseLong(stringListMap.get("page").get(0));
-            long sum = longPage * Long.parseLong(stringListMap.get("size").get(0));
-            long count = Long.parseLong(jsonObject.get("count").toString());
-            flag = count < sum;
-            // update page
-            // get newurl
-            stringListMap.put("page", Lists.newArrayList(String.valueOf(longPage + 1)));
-            String params = HttpUtil.toParams(stringListMap);
-            String string = page.getUrl().toString();
-            String newUrl = string.substring(0, string.indexOf("?") + 1) + params;
-            page.addTargetRequest(newUrl);
         }
     }
 

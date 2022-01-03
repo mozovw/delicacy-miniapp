@@ -11,6 +11,7 @@ import org.assertj.core.util.Lists;
 import org.springframework.util.ObjectUtils;
 import us.codecraft.webmagic.Page;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,9 +24,6 @@ public class StockDescProcessor extends AbstactProcessor {
 
     public static final String URL_PRE = "https://xueqiu.com/stock/industry/stockList.json?code=%s&type=1&size=1";
 
-    volatile boolean flag = false;
-
-
     @Override
     public void process(Page page) {
         if (page.getUrl().get().contains(URL_POST)) {
@@ -37,34 +35,9 @@ public class StockDescProcessor extends AbstactProcessor {
             pageProcessor.transfer("platename", "platename");
 
         } else if (!ObjectUtils.isEmpty(page.getRawText())) {
-            if (flag) {
-                return;
-            }
-            String rawText = page.getRawText();
-            JSONObject jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("data").toString();
-            jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("list").toString();
-            JSONArray jsonArray = JSON.parseArray(rawText);
-            List<String> collect = jsonArray.stream().map(e -> {
-                JSONObject e1 = (JSONObject) e;
-                String symbol = e1.get("symbol").toString();
-                return String.format(URL_PRE, symbol);
-            }).collect(Collectors.toList());
-            page.addTargetRequests(collect);
-            //todo update flag
-            Map<String, List<String>> stringListMap = HttpUtil.decodeParams(page.getUrl().toString(), "utf-8");
-            long longPage = Long.parseLong(stringListMap.get("page").get(0));
-            long sum = longPage * Long.parseLong(stringListMap.get("size").get(0));
-            long count = Long.parseLong(jsonObject.get("count").toString());
-            flag = count < sum;
-            //todo update page
-            //todo get newurl
-            stringListMap.put("page", Lists.newArrayList(String.valueOf(longPage + 1)));
-            String params = HttpUtil.toParams(stringListMap);
-            String string = page.getUrl().toString();
-            String newUrl = string.substring(0, string.indexOf("?") + 1) + params;
-            page.addTargetRequest(newUrl);
+            processPage(page,symbol->{
+                return Collections.singletonList(String.format(URL_PRE, symbol));
+            });
         }
     }
 

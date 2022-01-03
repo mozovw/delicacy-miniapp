@@ -77,7 +77,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBefore4Year(collection);
         Request request = getRequest(URL_ASTOCK);
         StockCashFlowReportProcessor processor = new StockCashFlowReportProcessor();
-        List<String> reportList = getReportList(collection,-4);
+        List<String> reportList = getReportList(collection,-5);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");
@@ -103,8 +103,6 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBeforeNumYear(collection,-2);
         Request request = getRequest(URL_ASTOCK);
         StockTopHoldersProcessor processor = new StockTopHoldersProcessor();
-        List<String> reportList = getReportList(collection,-2);
-        processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date","gudongmingcheng");
     }
@@ -117,7 +115,6 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         Request request = getRequest(URL_ASTOCK);
         StockSkHolderChgProcessor processor = new StockSkHolderChgProcessor();
         List<String> reportList = getReportList(collection,-2);
-        processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "biandongriqi","mingcheng");
     }

@@ -21,7 +21,7 @@ import java.util.List;
 public class JinrongcaifuServiceImpl extends AbstractService implements JinrongcaifuService {
     String url ="https://datacenter-web.eastmoney.com/securities/api/data/v1/get?" +
             "sortColumns=NOTICE_DATE%2CSECURITY_CODE&sortTypes=-1%2C-1&pageSize=20000&pageNumber=1&reportName=RPT_PUBLIC_OP_NEWPREDICT&" +
-            "columns=ALL&token=894050c76af8597a853f5b408b759f5d&filter=(REPORT_DATE%3D%27{1}%27)";
+            "columns=ALL&filter=(REPORT_DATE%3D%27{1}%27)";
     @Override
     public void runForcastReport() {
 

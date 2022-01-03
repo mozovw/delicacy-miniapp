@@ -7,7 +7,7 @@ import java.util.Map;
  * @author yutao.zhang
  * @create 2021-07-29 10:11
  **/
-public interface AnalysisMoneyService {
+public interface AnalysisMoneyService extends FinanceService{
 
 
     List<Map> list(String... symbols);

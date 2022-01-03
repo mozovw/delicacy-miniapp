@@ -21,7 +21,14 @@ public class CaifuForcastReportProcessor  extends AbstactProcessor {
             String rawText = page.getRawText();
 
             Map json2Obj = json2Obj(rawText, Map.class);
-            ArrayList<Map<String, String>> list =(ArrayList<Map<String, String>>)((Map) json2Obj.get("result")).get("data");
+            if (json2Obj==null){
+                return;
+            }
+            Map result = (Map) json2Obj.get("result");
+            if (result==null){
+                return;
+            }
+            ArrayList<Map<String, String>> list =(ArrayList<Map<String, String>>) result.get("data");
             LinkedHashMap<Integer, LinkedHashMap<String, String>> mapMain = Maps.newLinkedHashMap();
             for (int i = 0; i < list.size(); i++) {
                 Map<String, String> em = list.get(i);

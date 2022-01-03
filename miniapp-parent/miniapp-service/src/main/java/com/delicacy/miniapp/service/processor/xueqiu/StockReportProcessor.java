@@ -39,49 +39,11 @@ public class StockReportProcessor extends AbstactProcessor {
             "https://stock.xueqiu.com/v5/stock/finance/cn/indicator.json?symbol=%s&type=Q4&is_detail=true&count=5&timestamp=%s"
     };
 
-    volatile boolean flag = false;
-
     public void setAppointReportDates(String[] appointReportDates) {
         this.appointReportDates = appointReportDates;
     }
 
     private String appointReportDates[] = {};
-
-    private void transfer(Map page, Object jsonObject, String a, String b) {
-        if (b == null) {
-            page.put(a, null);
-            return;
-        }
-        Object obj = null;
-
-        if (jsonObject instanceof JSONObject) {
-            obj = ((JSONObject) jsonObject).get(b);
-        } else {
-            if (jsonObject != null) {
-                obj = jsonObject;
-            }
-        }
-
-        if (obj == null) {
-            page.put(a, null);
-            return;
-        }
-
-        String string = null;
-        if (obj instanceof String) {
-            string = String.valueOf(obj);
-        } else if (obj instanceof BigDecimal) {
-            string = ((BigDecimal) obj).setScale(3, RoundingMode.HALF_UP).toString();
-        } else if (obj instanceof Long) {
-            string = ((Long) obj).toString();
-        } else if (obj instanceof Integer) {
-            string = ((Integer) obj).toString();
-        } else if (obj instanceof JSONArray) {
-            transfer(page, ((JSONArray) obj).get(0), a, b);
-            return;
-        }
-        page.put(a, string);
-    }
 
     @Override
     public void process(Page page) {
@@ -97,143 +59,100 @@ public class StockReportProcessor extends AbstactProcessor {
             if (jsonObject == null) {
                 return;
             }
+            Object quote_name = jsonObject.get("quote_name");
             JSONArray jsonArray = jsonObject.getJSONArray("list");
-
-            LinkedHashMap<Integer, LinkedHashMap<String, String>> mapMain = Maps.newLinkedHashMap();
+            PageProcessor processor = new PageProcessor(page,jsonArray);
 
             for (int i = 0; i < jsonArray.size(); i++) {
-                JSONObject jsonArrayJSONObject = jsonArray.getJSONObject(i);
-                LinkedHashMap map = new LinkedHashMap();
-                map.put("symbol", symbol.replace("SH", "").replace("SZ", ""));
-                transfer(map, jsonObject, "name", "quote_name");
-
+                processor.putmap(i,"symbol", symbol.replace("SH", "").replace("SZ", ""));
+                processor.putmap(i,"name",String.valueOf(quote_name));
                 if (url.contains("cn")) {
-                    transfer(map, jsonArrayJSONObject, "report_date", "report_name");
-                    Object report_date = map.get("report_date");
+                    processor.transfer(i,"report_date", "report_name");
+                    LinkedHashMap<String, String> getmap = processor.getmap(i);
+                    Object report_date = getmap.get("report_date");
                     if (appointReportDates.length != 0 && Arrays.stream(appointReportDates).noneMatch(e -> e.equalsIgnoreCase(String.valueOf(report_date)))) {
+                        processor.getmap(i).clear();
                         continue;
                     }
-                    transfer(map, jsonArrayJSONObject, "yingyeshouru", "total_revenue");
-                    transfer(map, jsonArrayJSONObject, "yingyeshourutongbizengzhang", "operating_income_yoy");
-                    transfer(map, jsonArrayJSONObject, "jinglirun", "net_profit_atsopc");
-                    transfer(map, jsonArrayJSONObject, "jingliruntongbizengzhang", "net_profit_atsopc_yoy");
-                    transfer(map, jsonArrayJSONObject, "koufeijinglirun", "net_profit_after_nrgal_atsolc");
-                    transfer(map, jsonArrayJSONObject, "koufeijingliruntongbizengzhang", "np_atsopc_nrgal_yoy");
-                    transfer(map, jsonArrayJSONObject, "meigushouyi", "basic_eps");
-                    transfer(map, jsonArrayJSONObject, "meigujingzichan", "np_per_share");
-                    transfer(map, jsonArrayJSONObject, "meiguzibengongjijin", "capital_reserve");
-                    transfer(map, jsonArrayJSONObject, "meiguweifenpeilirun", "undistri_profit_ps");
-                    transfer(map, jsonArrayJSONObject, "meigujingyingxianjinliu", "operate_cash_flow_ps");
-                    transfer(map, jsonArrayJSONObject, "jingzichanshouyilv", "avg_roe");
-                    transfer(map, jsonArrayJSONObject, "jingzichanshouyilv-tanbo", "ore_dlt");
-                    transfer(map, jsonArrayJSONObject, "zongzichanbaochoulv", "net_interest_of_total_assets");
-                    transfer(map, jsonArrayJSONObject, "renlitouruhuibaolv", "rop");
-                    transfer(map, jsonArrayJSONObject, "xiaoshoumaolilv", "gross_selling_rate");
-                    transfer(map, jsonArrayJSONObject, "xiaoshoujinglilv", "net_selling_rate");
-                    transfer(map, jsonArrayJSONObject, "zichanfuzhailv", "asset_liab_ratio");
-                    transfer(map, jsonArrayJSONObject, "liudongbilv", "current_ratio");
-                    transfer(map, jsonArrayJSONObject, "sudongbilv", "quick_ratio");
-                    transfer(map, jsonArrayJSONObject, "quanyichengshu", "equity_multiplier");
-                    transfer(map, jsonArrayJSONObject, "chanquanbilv", "equity_ratio");
-                    transfer(map, jsonArrayJSONObject, "gudongquanyibilv", "holder_equity");
-                    transfer(map, jsonArrayJSONObject, "xianjinliuliangbilv", "ncf_from_oa_to_total_liab");
-                    transfer(map, jsonArrayJSONObject, "cunhuozhouzhuantianshu", "inventory_turnover_days");
-                    transfer(map, jsonArrayJSONObject, "yingshouzhangkuanzhouzhuantianshu", "receivable_turnover_days");
-                    transfer(map, jsonArrayJSONObject, "yingfuzhangkuanzhouzhuantianshu", "accounts_payable_turnover_days");
-                    transfer(map, jsonArrayJSONObject, "xianjinxunhuanzhouqi", "cash_cycle");
-                    transfer(map, jsonArrayJSONObject, "zongzichanzhouzhuanlv", "total_capital_turnover");
-                    transfer(map, jsonArrayJSONObject, "cunhuozhouzhuanlv", "inventory_turnover");
-                    transfer(map, jsonArrayJSONObject, "yingshouzhangkuanzhouzhuanlv", "account_receivable_turnover");
-                    transfer(map, jsonArrayJSONObject, "yingfuzhangkuanzhouzhuanlv", "accounts_payable_turnover");
-                    transfer(map, jsonArrayJSONObject, "liudongzichanzhouzhuanlv", "current_asset_turnover_rate");
-                    transfer(map, jsonArrayJSONObject, "gudingzichanzhouzhuanlv", "fixed_asset_turnover_ratio");
+                    processor.transfer(i, "yingyeshouru", "total_revenue");
+                    processor.transfer(i, "yingyeshourutongbizengzhang", "operating_income_yoy");
+                    processor.transfer(i, "jinglirun", "net_profit_atsopc");
+                    processor.transfer(i, "jingliruntongbizengzhang", "net_profit_atsopc_yoy");
+                    processor.transfer(i, "koufeijinglirun", "net_profit_after_nrgal_atsolc");
+                    processor.transfer(i, "koufeijingliruntongbizengzhang", "np_atsopc_nrgal_yoy");
+                    processor.transfer(i, "meigushouyi", "basic_eps");
+                    processor.transfer(i, "meigujingzichan", "np_per_share");
+                    processor.transfer(i, "meiguzibengongjijin", "capital_reserve");
+                    processor.transfer(i, "meiguweifenpeilirun", "undistri_profit_ps");
+                    processor.transfer(i, "meigujingyingxianjinliu", "operate_cash_flow_ps");
+                    processor.transfer(i, "jingzichanshouyilv", "avg_roe");
+                    processor.transfer(i, "jingzichanshouyilv-tanbo", "ore_dlt");
+                    processor.transfer(i, "zongzichanbaochoulv", "net_interest_of_total_assets");
+                    processor.transfer(i, "renlitouruhuibaolv", "rop");
+                    processor.transfer(i, "xiaoshoumaolilv", "gross_selling_rate");
+                    processor.transfer(i, "xiaoshoujinglilv", "net_selling_rate");
+                    processor.transfer(i, "zichanfuzhailv", "asset_liab_ratio");
+                    processor.transfer(i, "liudongbilv", "current_ratio");
+                    processor.transfer(i, "sudongbilv", "quick_ratio");
+                    processor.transfer(i, "quanyichengshu", "equity_multiplier");
+                    processor.transfer(i, "chanquanbilv", "equity_ratio");
+                    processor.transfer(i, "gudongquanyibilv", "holder_equity");
+                    processor.transfer(i, "xianjinliuliangbilv", "ncf_from_oa_to_total_liab");
+                    processor.transfer(i, "cunhuozhouzhuantianshu", "inventory_turnover_days");
+                    processor.transfer(i, "yingshouzhangkuanzhouzhuantianshu", "receivable_turnover_days");
+                    processor.transfer(i, "yingfuzhangkuanzhouzhuantianshu", "accounts_payable_turnover_days");
+                    processor.transfer(i, "xianjinxunhuanzhouqi", "cash_cycle");
+                    processor.transfer(i, "zongzichanzhouzhuanlv", "total_capital_turnover");
+                    processor.transfer(i, "cunhuozhouzhuanlv", "inventory_turnover");
+                    processor.transfer(i, "yingshouzhangkuanzhouzhuanlv", "account_receivable_turnover");
+                    processor.transfer(i, "yingfuzhangkuanzhouzhuanlv", "accounts_payable_turnover");
+                    processor.transfer(i, "liudongzichanzhouzhuanlv", "current_asset_turnover_rate");
+                    processor.transfer(i, "gudingzichanzhouzhuanlv", "fixed_asset_turnover_ratio");
                 }
 
-                if (url.contains("hk")) {
-                    transfer(map, jsonArrayJSONObject, "report_date", "report_name");
-                    Object report_date = map.get("report_date");
-                    if (appointReportDates.length != 0 && Arrays.stream(appointReportDates).noneMatch(e -> e.equalsIgnoreCase(String.valueOf(report_date)))) {
-                        continue;
-                    }
-                    transfer(map, jsonArrayJSONObject, "yingyeshouru", "tto");
-                    transfer(map, jsonArrayJSONObject, "jinglirun", "ploashh");
-                    transfer(map, jsonArrayJSONObject, "meigushouyi", "beps");
-                    transfer(map, jsonArrayJSONObject, "meigushouyitiaozhenghou", "beps_aju");
-                    transfer(map, jsonArrayJSONObject, "meigujingzichan", "bps");
-                    transfer(map, jsonArrayJSONObject, "meiguxianjinliujinge", "ncfps");
-                    transfer(map, jsonArrayJSONObject, "meigujingyingxianjinliu", "nocfps");
-                    transfer(map, jsonArrayJSONObject, "meigutouzixianjinliu", "ninvcfps");
-                    transfer(map, jsonArrayJSONObject, "meiguchouzixianjinliu", "nfcgcfps");
-                    transfer(map, jsonArrayJSONObject, "meiguyingyee", "ttops");
-                    transfer(map, jsonArrayJSONObject, "meiguyingyeshouru", "tsrps");
-                    transfer(map, jsonArrayJSONObject, "meiguyingyelirun", "opps");
-
-                    transfer(map, jsonArrayJSONObject, "jingzichanshouyilv", "roe");
-                    transfer(map, jsonArrayJSONObject, "zongzichanhuibaolv", "rota");
-                    transfer(map, jsonArrayJSONObject, "maolilv", "gross_selling_rate");
-                    transfer(map, jsonArrayJSONObject, "zichanfuzhailv", "tlia_ta");
-                    transfer(map, jsonArrayJSONObject, "liudongbilv", "cro");
-                    transfer(map, jsonArrayJSONObject, "sudongbilv", "qro");
-                    transfer(map, jsonArrayJSONObject, "cunhuozhuanhuazhouqi", "ivcvspd");
-                    transfer(map, jsonArrayJSONObject, "yingshouzhangkuanzhuanhuazhouqi", "arbcvspd");
-                    transfer(map, jsonArrayJSONObject, "yingfuzhangkuanzhuanhuazhouqi", "apycvspd");
-                }
-
-
-                mapMain.put(i, map);
+//                if (url.contains("hk")) {
+//                    transfer(map, jsonArrayJSONObject, "report_date", "report_name");
+//                    Object report_date = map.get("report_date");
+//                    if (appointReportDates.length != 0 && Arrays.stream(appointReportDates).noneMatch(e -> e.equalsIgnoreCase(String.valueOf(report_date)))) {
+//                        continue;
+//                    }
+//                    transfer(map, jsonArrayJSONObject, "yingyeshouru", "tto");
+//                    transfer(map, jsonArrayJSONObject, "jinglirun", "ploashh");
+//                    transfer(map, jsonArrayJSONObject, "meigushouyi", "beps");
+//                    transfer(map, jsonArrayJSONObject, "meigushouyitiaozhenghou", "beps_aju");
+//                    transfer(map, jsonArrayJSONObject, "meigujingzichan", "bps");
+//                    transfer(map, jsonArrayJSONObject, "meiguxianjinliujinge", "ncfps");
+//                    transfer(map, jsonArrayJSONObject, "meigujingyingxianjinliu", "nocfps");
+//                    transfer(map, jsonArrayJSONObject, "meigutouzixianjinliu", "ninvcfps");
+//                    transfer(map, jsonArrayJSONObject, "meiguchouzixianjinliu", "nfcgcfps");
+//                    transfer(map, jsonArrayJSONObject, "meiguyingyee", "ttops");
+//                    transfer(map, jsonArrayJSONObject, "meiguyingyeshouru", "tsrps");
+//                    transfer(map, jsonArrayJSONObject, "meiguyingyelirun", "opps");
+//
+//                    transfer(map, jsonArrayJSONObject, "jingzichanshouyilv", "roe");
+//                    transfer(map, jsonArrayJSONObject, "zongzichanhuibaolv", "rota");
+//                    transfer(map, jsonArrayJSONObject, "maolilv", "gross_selling_rate");
+//                    transfer(map, jsonArrayJSONObject, "zichanfuzhailv", "tlia_ta");
+//                    transfer(map, jsonArrayJSONObject, "liudongbilv", "cro");
+//                    transfer(map, jsonArrayJSONObject, "sudongbilv", "qro");
+//                    transfer(map, jsonArrayJSONObject, "cunhuozhuanhuazhouqi", "ivcvspd");
+//                    transfer(map, jsonArrayJSONObject, "yingshouzhangkuanzhuanhuazhouqi", "arbcvspd");
+//                    transfer(map, jsonArrayJSONObject, "yingfuzhangkuanzhuanhuazhouqi", "apycvspd");
+//                }
             }
 
-            page.putField("map", mapMain);
+            processor.process();
 
 
         } else if (!ObjectUtils.isEmpty(page.getRawText())) {
-            if (flag) {
-                return;
-            }
-            Map<String, List<String>> listMap = HttpUtil.decodeParams(url, "utf-8");
-            String market = listMap.get("market").get(0);
-
-
-            String rawText = page.getRawText();
-            JSONObject jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("data").toString();
-            jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("list").toString();
-            JSONArray jsonArray = JSON.parseArray(rawText);
-
-            List<String> collect = new ArrayList<>();
-
-            String[] urls = new String[0];
-            if ("CN".equals(market)) {
-                urls = URL_PRE;
-            }
-            if ("HK".equals(market)) {
-                urls = URL_PRE_HK;
-            }
-
-            String[] finalUrls = urls;
-            jsonArray.stream().forEach(e -> {
-                JSONObject e1 = (JSONObject) e;
-                String symbol = e1.get("symbol").toString();
-
+            String[] finalUrls = URL_PRE;
+            processPage(page,symbol->{
+                List<String> collect = new ArrayList<>();
                 Arrays.stream(finalUrls).forEach(ee -> {
                     collect.add(String.format(ee, symbol, System.currentTimeMillis()));
                 });
+                return collect;
             });
-            page.addTargetRequests(collect);
-            // update flag
-            Map<String, List<String>> stringListMap = HttpUtil.decodeParams(page.getUrl().toString(), "utf-8");
-            long longPage = Long.parseLong(stringListMap.get("page").get(0));
-            long sum = longPage * Long.parseLong(stringListMap.get("size").get(0));
-            long count = Long.parseLong(jsonObject.get("count").toString());
-            flag = count < sum;
-            // update page
-            // get newurl
-            stringListMap.put("page", Lists.newArrayList(String.valueOf(longPage + 1)));
-            String params = HttpUtil.toParams(stringListMap);
-            String string = page.getUrl().toString();
-            String newUrl = string.substring(0, string.indexOf("?") + 1) + params;
-            page.addTargetRequest(newUrl);
         }
     }
 

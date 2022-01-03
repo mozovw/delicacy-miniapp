@@ -41,8 +41,8 @@ public abstract class AbstractService {
         List<Date> list = new ArrayList<>();
         String format = DateUtil.format(DateTime.now(), "MM");
         String format_year = DateUtil.format(DateTime.now(), "yyyy");
-        String format_year_last = DateUtil.format(DateTime.now(), "yyyy");
-        DateTime dateTime = DateUtil.parseDate(format_year + "-03-31");
+        DateTime offset = DateUtil.offset(DateTime.now(), DateField.YEAR, -1);
+        String format_year_last = DateUtil.format(offset, "yyyy");
         Integer month = Integer.valueOf(format);
         switch (month){
             case 1:
@@ -202,7 +202,7 @@ public abstract class AbstractService {
                 .addRequest(request)
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(pipeline)
-                .runAsync();
+                .run();
 
     }
 
@@ -213,7 +213,7 @@ public abstract class AbstractService {
                 .addRequest(request)
                 .addPipeline(new ConsolePipeline())
                 .addPipeline(pipeline)
-                .runAsync();
+                .run();
     }
 
 

@@ -36,49 +36,11 @@ public class StockBalanceReportProcessor extends AbstactProcessor {
             "https://stock.xueqiu.com/v5/stock/finance/cn/balance.json?symbol=%s&type=Q4&is_detail=true&count=5&timestamp=%s"
     };
 
-    volatile boolean flag = false;
-
     public void setAppointReportDates(String[] appointReportDates) {
         this.appointReportDates = appointReportDates;
     }
 
     private String appointReportDates[] = {};
-
-    private void transfer(Map page, Object jsonObject, String a, String b) {
-        if (b == null) {
-            page.put(a, null);
-            return;
-        }
-        Object obj = null;
-
-        if (jsonObject instanceof JSONObject) {
-            obj = ((JSONObject) jsonObject).get(b);
-        } else {
-            if (jsonObject != null) {
-                obj = jsonObject;
-            }
-        }
-
-        if (obj == null) {
-            page.put(a, null);
-            return;
-        }
-
-        String string = null;
-        if (obj instanceof String) {
-            string = String.valueOf(obj);
-        } else if (obj instanceof BigDecimal) {
-            string = ((BigDecimal) obj).setScale(3, RoundingMode.HALF_UP).toString();
-        } else if (obj instanceof Long) {
-            string = ((Long) obj).toString();
-        } else if (obj instanceof Integer) {
-            string = ((Integer) obj).toString();
-        } else if (obj instanceof JSONArray) {
-            transfer(page, ((JSONArray) obj).get(0), a, b);
-            return;
-        }
-        page.put(a, string);
-    }
 
     @Override
     public void process(Page page) {
@@ -94,197 +56,123 @@ public class StockBalanceReportProcessor extends AbstactProcessor {
             if (jsonObject == null) {
                 return;
             }
+            Object quote_name = jsonObject.get("quote_name");
             JSONArray jsonArray = jsonObject.getJSONArray("list");
-
-            LinkedHashMap<Integer, LinkedHashMap<String, String>> mapMain = Maps.newLinkedHashMap();
+            PageProcessor processor = new PageProcessor(page,jsonArray);
 
             for (int i = 0; i < jsonArray.size(); i++) {
-                JSONObject jsonArrayJSONObject = jsonArray.getJSONObject(i);
-                LinkedHashMap map = new LinkedHashMap();
-                map.put("symbol", symbol.replace("SH", "").replace("SZ", ""));
-                transfer(map, jsonObject, "name", "quote_name");
-
+                processor.putmap(i,"symbol", symbol.replace("SH", "").replace("SZ", ""));
+                processor.putmap(i,"name",String.valueOf(quote_name));
                 if (url.contains("cn")) {
-                    transfer(map, jsonArrayJSONObject, "report_date", "report_name");
-                    Object report_date = map.get("report_date");
+                    processor.transfer(i,"report_date", "report_name");
+                    LinkedHashMap<String, String> getmap = processor.getmap(i);
+                    Object report_date = getmap.get("report_date");
                     if (appointReportDates.length != 0 && Arrays.stream(appointReportDates).noneMatch(e -> e.equalsIgnoreCase(String.valueOf(report_date)))) {
+                        processor.getmap(i).clear();
                         continue;
                     }
-//                    transfer(map, jsonArrayJSONObject, "liudongzichan", "");
-                    transfer(map, jsonArrayJSONObject, "huobizijin", "currency_funds");
-                    transfer(map, jsonArrayJSONObject, "jiaoyixingjinrongzichan", "tradable_fnncl_assets");
-                    transfer(map, jsonArrayJSONObject, "yingshoupiaojujiyingshouzhangkuan", "ar_and_br");
-                    transfer(map, jsonArrayJSONObject, "qizhong_yingshoupiaoju", "bills_receivable");
-                    transfer(map, jsonArrayJSONObject, "yingshouzhangkuan", "account_receivable");
-                    transfer(map, jsonArrayJSONObject, "yufukuanxiang", "pre_payment");
-                    transfer(map, jsonArrayJSONObject, "yingshoulixi", "interest_receivable");
-                    transfer(map, jsonArrayJSONObject, "yingshouguli", "dividend_receivable");
-                    transfer(map, jsonArrayJSONObject, "qitayingshoukuan", "bill_payable");
-                    transfer(map, jsonArrayJSONObject, "cunhuo", "inventory");
-                    transfer(map, jsonArrayJSONObject, "hetongzichan", "contractual_assets");
-                    transfer(map, jsonArrayJSONObject, "huafenweichiyoudaishoudezichan", "");
-                    transfer(map, jsonArrayJSONObject, "yiniannadaoqidefeiliudongzichan", "");
-                    transfer(map, jsonArrayJSONObject, "qitaliudongzichan", "earned_surplus");
-                    transfer(map, jsonArrayJSONObject, "liudongzichanheji", "total_current_assets");
-//                    transfer(map, jsonArrayJSONObject, "feiliudongzichan", "");
-                    transfer(map, jsonArrayJSONObject, "kegongchushoujinrongzichan", "");
-                    transfer(map, jsonArrayJSONObject, "chiyouzhidaoqitouzi", "");
-                    transfer(map, jsonArrayJSONObject, "changqiyingshoukuan", "lt_receivable");
-                    transfer(map, jsonArrayJSONObject, "changqiguquantouzi", "lt_equity_invest");
-                    transfer(map, jsonArrayJSONObject, "qitaquanyigongjutouzi", "other_eq_ins_invest");
-                    transfer(map, jsonArrayJSONObject, "qitafeiliudongjinrongzichan", "other_illiquid_fnncl_assets");
-                    transfer(map, jsonArrayJSONObject, "touzixingfangdichan", "");
-                    transfer(map, jsonArrayJSONObject, "gudingzichanheji", "fixed_asset_sum");
-                    transfer(map, jsonArrayJSONObject, "qizhong_gudingzichan", "fixed_asset");
-                    transfer(map, jsonArrayJSONObject, "gudingzichanqingli", "");
-                    transfer(map, jsonArrayJSONObject, "zaijianɡonɡchenɡheji", "construction_in_process_sum");
-                    transfer(map, jsonArrayJSONObject, "qizhong_zaijianɡonɡchenɡ", "construction_in_process");
-                    transfer(map, jsonArrayJSONObject, "ɡonɡchenɡwuzi", "project_goods_and_material");
-                    transfer(map, jsonArrayJSONObject, "shengchanxingshenɡwuzichan", "");
-                    transfer(map, jsonArrayJSONObject, "youqizichan", "");
-                    transfer(map, jsonArrayJSONObject, "wuxingzichan", "intangible_assets");
-                    transfer(map, jsonArrayJSONObject, "kaifazhichu", "");
-                    transfer(map, jsonArrayJSONObject, "shangyu", "goodwill");
-                    transfer(map, jsonArrayJSONObject, "changqidaitanfeiyong", "lt_deferred_expense");
-                    transfer(map, jsonArrayJSONObject, "diyansuodeshuizichan", "dt_assets");
-                    transfer(map, jsonArrayJSONObject, "qitafeiliudongzichan", "othr_noncurrent_assets");
-                    transfer(map, jsonArrayJSONObject, "feiliudongzichanheji", "total_noncurrent_assets");
-                    transfer(map, jsonArrayJSONObject, "zichanheji", "total_assets");
-//                    transfer(map, jsonArrayJSONObject, "liudongfuzhai", "");
-                    transfer(map, jsonArrayJSONObject, "duanqijiekuan", "st_loan");
-                    transfer(map, jsonArrayJSONObject, "jiaoyixingjinrongfuzhai", "tradable_fnncl_liab");
-                    transfer(map, jsonArrayJSONObject, "yanshenɡjinrongfuzhai", "");
-                    transfer(map, jsonArrayJSONObject, "yingfupiaojujiyingfuzhangkuan", "bp_and_ap");
-                    transfer(map, jsonArrayJSONObject, "yingfupiaoju", "bill_payable");
-                    transfer(map, jsonArrayJSONObject, "yingfuzhangkuan", "accounts_payable");
-                    transfer(map, jsonArrayJSONObject, "yushoukuanxiang", "pre_receivable");
-                    transfer(map, jsonArrayJSONObject, "hetongfuzhai", "contract_liabilities");
-                    transfer(map, jsonArrayJSONObject, "yingfuzhigongxinchou", "payroll_payable");
-                    transfer(map, jsonArrayJSONObject, "yingjiaoshuifei", "tax_payable");
-                    transfer(map, jsonArrayJSONObject, "yingfulixi", "interest_payable");
-                    transfer(map, jsonArrayJSONObject, "yingfuguli", "dividend_payable");
-                    transfer(map, jsonArrayJSONObject, "qitayingfukuan", "othr_payables");
-                    transfer(map, jsonArrayJSONObject, "huafenweichiyoudaishoudefuzhai", "");
-                    transfer(map, jsonArrayJSONObject, "yiniannadaoqidefeiliudongfuzhai", "noncurrent_liab_due_in1y");
-                    transfer(map, jsonArrayJSONObject, "qitaliudongfuzhai", "othr_current_liab");
-                    transfer(map, jsonArrayJSONObject, "liudongfuzhaiheji", "total_current_liab");
-//                    transfer(map, jsonArrayJSONObject, "feiliudongfuzhai", "");
-                    transfer(map, jsonArrayJSONObject, "changqijiekuan", "lt_loan");
-                    transfer(map, jsonArrayJSONObject, "yingfuzhaiquan", "bond_payable");
-                    transfer(map, jsonArrayJSONObject, "changqiyingfukuanheji", "lt_payable_sum");
-                    transfer(map, jsonArrayJSONObject, "changqiyingfukuan", "lt_payable");
-                    transfer(map, jsonArrayJSONObject, "zhuanxiangyingfukuan", "special_payable");
-                    transfer(map, jsonArrayJSONObject, "yujifuzhai", "estimated_liab");
-                    transfer(map, jsonArrayJSONObject, "diyansuodeshuifuzhai", "dt_liab");
-                    transfer(map, jsonArrayJSONObject, "diyanshouyi-feiliudongfuzhai", "noncurrent_liab_di");
-                    transfer(map, jsonArrayJSONObject, "qitafeiliudongfuzhai", "othr_non_current_liab");
-                    transfer(map, jsonArrayJSONObject, "feiliudongfuzhaiheji", "total_noncurrent_liab");
-                    transfer(map, jsonArrayJSONObject, "fuzhaiheji", "total_liab");
-//                    transfer(map, jsonArrayJSONObject, "suoyouzhequanyi", "");
-                    transfer(map, jsonArrayJSONObject, "shishouziben(huoguben)", "shares");
-                    transfer(map, jsonArrayJSONObject, "qitaquanyigongju", "othr_equity_instruments");
-                    transfer(map, jsonArrayJSONObject, "qizhong_youxiangu", "");
-                    transfer(map, jsonArrayJSONObject, "yongxuzhai", "perpetual_bond");
-                    transfer(map, jsonArrayJSONObject, "zibengongji", "capital_reserve");
-                    transfer(map, jsonArrayJSONObject, "jian_kucungu", "treasury_stock");
-                    transfer(map, jsonArrayJSONObject, "qitazongheshouyi", "othr_compre_income");
-                    transfer(map, jsonArrayJSONObject, "zhuanxiangchubei", "special_reserve");
-                    transfer(map, jsonArrayJSONObject, "yingyugongji", "earned_surplus");
-                    transfer(map, jsonArrayJSONObject, "weifenpeilirun", "undstrbtd_profit");
-                    transfer(map, jsonArrayJSONObject, "yibanfengxianzhunbei", "general_risk_provision");
-                    transfer(map, jsonArrayJSONObject, "waibibaobiaozhesuanchae", "");
-                    transfer(map, jsonArrayJSONObject, "guishuyumugongsigudongquanyiheji", "total_quity_atsopc");
-                    transfer(map, jsonArrayJSONObject, "shaoshugudongquanyi", "minority_equity");
-                    transfer(map, jsonArrayJSONObject, "gudongquanyiheji", "total_holders_equity");
-                    transfer(map, jsonArrayJSONObject, "fuzhaihegudongquanyizongji", "total_liab_and_holders_equity");
+//                    processor.transfer(i, "liudongzichan", "");
+                    processor.transfer(i, "huobizijin", "currency_funds");
+                    processor.transfer(i, "jiaoyixingjinrongzichan", "tradable_fnncl_assets");
+                    processor.transfer(i, "yingshoupiaojujiyingshouzhangkuan", "ar_and_br");
+                    processor.transfer(i, "qizhong_yingshoupiaoju", "bills_receivable");
+                    processor.transfer(i, "yingshouzhangkuan", "account_receivable");
+                    processor.transfer(i, "yufukuanxiang", "pre_payment");
+                    processor.transfer(i, "yingshoulixi", "interest_receivable");
+                    processor.transfer(i, "yingshouguli", "dividend_receivable");
+                    processor.transfer(i, "qitayingshoukuan", "bill_payable");
+                    processor.transfer(i, "cunhuo", "inventory");
+                    processor.transfer(i, "hetongzichan", "contractual_assets");
+                    processor.transfer(i, "huafenweichiyoudaishoudezichan", "");
+                    processor.transfer(i, "yiniannadaoqidefeiliudongzichan", "");
+                    processor.transfer(i, "qitaliudongzichan", "earned_surplus");
+                    processor.transfer(i, "liudongzichanheji", "total_current_assets");
+//                    processor.transfer(i, "feiliudongzichan", "");
+                    processor.transfer(i, "kegongchushoujinrongzichan", "");
+                    processor.transfer(i, "chiyouzhidaoqitouzi", "");
+                    processor.transfer(i, "changqiyingshoukuan", "lt_receivable");
+                    processor.transfer(i, "changqiguquantouzi", "lt_equity_invest");
+                    processor.transfer(i, "qitaquanyigongjutouzi", "other_eq_ins_invest");
+                    processor.transfer(i, "qitafeiliudongjinrongzichan", "other_illiquid_fnncl_assets");
+                    processor.transfer(i, "touzixingfangdichan", "");
+                    processor.transfer(i, "gudingzichanheji", "fixed_asset_sum");
+                    processor.transfer(i, "qizhong_gudingzichan", "fixed_asset");
+                    processor.transfer(i, "gudingzichanqingli", "");
+                    processor.transfer(i, "zaijianɡonɡchenɡheji", "construction_in_process_sum");
+                    processor.transfer(i, "qizhong_zaijianɡonɡchenɡ", "construction_in_process");
+                    processor.transfer(i, "ɡonɡchenɡwuzi", "project_goods_and_material");
+                    processor.transfer(i, "shengchanxingshenɡwuzichan", "");
+                    processor.transfer(i, "youqizichan", "");
+                    processor.transfer(i, "wuxingzichan", "intangible_assets");
+                    processor.transfer(i, "kaifazhichu", "");
+                    processor.transfer(i, "shangyu", "goodwill");
+                    processor.transfer(i, "changqidaitanfeiyong", "lt_deferred_expense");
+                    processor.transfer(i, "diyansuodeshuizichan", "dt_assets");
+                    processor.transfer(i, "qitafeiliudongzichan", "othr_noncurrent_assets");
+                    processor.transfer(i, "feiliudongzichanheji", "total_noncurrent_assets");
+                    processor.transfer(i, "zichanheji", "total_assets");
+//                    processor.transfer(i, "liudongfuzhai", "");
+                    processor.transfer(i, "duanqijiekuan", "st_loan");
+                    processor.transfer(i, "jiaoyixingjinrongfuzhai", "tradable_fnncl_liab");
+                    processor.transfer(i, "yanshenɡjinrongfuzhai", "");
+                    processor.transfer(i, "yingfupiaojujiyingfuzhangkuan", "bp_and_ap");
+                    processor.transfer(i, "yingfupiaoju", "bill_payable");
+                    processor.transfer(i, "yingfuzhangkuan", "accounts_payable");
+                    processor.transfer(i, "yushoukuanxiang", "pre_receivable");
+                    processor.transfer(i, "hetongfuzhai", "contract_liabilities");
+                    processor.transfer(i, "yingfuzhigongxinchou", "payroll_payable");
+                    processor.transfer(i, "yingjiaoshuifei", "tax_payable");
+                    processor.transfer(i, "yingfulixi", "interest_payable");
+                    processor.transfer(i, "yingfuguli", "dividend_payable");
+                    processor.transfer(i, "qitayingfukuan", "othr_payables");
+                    processor.transfer(i, "huafenweichiyoudaishoudefuzhai", "");
+                    processor.transfer(i, "yiniannadaoqidefeiliudongfuzhai", "noncurrent_liab_due_in1y");
+                    processor.transfer(i, "qitaliudongfuzhai", "othr_current_liab");
+                    processor.transfer(i, "liudongfuzhaiheji", "total_current_liab");
+//                    processor.transfer(i, "feiliudongfuzhai", "");
+                    processor.transfer(i, "changqijiekuan", "lt_loan");
+                    processor.transfer(i, "yingfuzhaiquan", "bond_payable");
+                    processor.transfer(i, "changqiyingfukuanheji", "lt_payable_sum");
+                    processor.transfer(i, "changqiyingfukuan", "lt_payable");
+                    processor.transfer(i, "zhuanxiangyingfukuan", "special_payable");
+                    processor.transfer(i, "yujifuzhai", "estimated_liab");
+                    processor.transfer(i, "diyansuodeshuifuzhai", "dt_liab");
+                    processor.transfer(i, "diyanshouyi-feiliudongfuzhai", "noncurrent_liab_di");
+                    processor.transfer(i, "qitafeiliudongfuzhai", "othr_non_current_liab");
+                    processor.transfer(i, "feiliudongfuzhaiheji", "total_noncurrent_liab");
+                    processor.transfer(i, "fuzhaiheji", "total_liab");
+//                    processor.transfer(i, "suoyouzhequanyi", "");
+                    processor.transfer(i, "shishouziben(huoguben)", "shares");
+                    processor.transfer(i, "qitaquanyigongju", "othr_equity_instruments");
+                    processor.transfer(i, "qizhong_youxiangu", "");
+                    processor.transfer(i, "yongxuzhai", "perpetual_bond");
+                    processor.transfer(i, "zibengongji", "capital_reserve");
+                    processor.transfer(i, "jian_kucungu", "treasury_stock");
+                    processor.transfer(i, "qitazongheshouyi", "othr_compre_income");
+                    processor.transfer(i, "zhuanxiangchubei", "special_reserve");
+                    processor.transfer(i, "yingyugongji", "earned_surplus");
+                    processor.transfer(i, "weifenpeilirun", "undstrbtd_profit");
+                    processor.transfer(i, "yibanfengxianzhunbei", "general_risk_provision");
+                    processor.transfer(i, "waibibaobiaozhesuanchae", "");
+                    processor.transfer(i, "guishuyumugongsigudongquanyiheji", "total_quity_atsopc");
+                    processor.transfer(i, "shaoshugudongquanyi", "minority_equity");
+                    processor.transfer(i, "gudongquanyiheji", "total_holders_equity");
+                    processor.transfer(i, "fuzhaihegudongquanyizongji", "total_liab_and_holders_equity");
 
                 }
-                // todo 没做处理
-                if (url.contains("hk")) {
-                    transfer(map, jsonArrayJSONObject, "report_date", "report_name");
-                    Object report_date = map.get("report_date");
-                    if (appointReportDates.length != 0 && Arrays.stream(appointReportDates).noneMatch(e -> e.equalsIgnoreCase(String.valueOf(report_date)))) {
-                        continue;
-                    }
-                    transfer(map, jsonArrayJSONObject, "yingyeshouru", "tto");
-                    transfer(map, jsonArrayJSONObject, "jinglirun", "ploashh");
-                    transfer(map, jsonArrayJSONObject, "meigushouyi", "beps");
-                    transfer(map, jsonArrayJSONObject, "meigushouyitiaozhenghou", "beps_aju");
-                    transfer(map, jsonArrayJSONObject, "meigujingzichan", "bps");
-                    transfer(map, jsonArrayJSONObject, "meiguxianjinliujinge", "ncfps");
-                    transfer(map, jsonArrayJSONObject, "meigujingyingxianjinliu", "nocfps");
-                    transfer(map, jsonArrayJSONObject, "meigutouzixianjinliu", "ninvcfps");
-                    transfer(map, jsonArrayJSONObject, "meiguchouzixianjinliu", "nfcgcfps");
-                    transfer(map, jsonArrayJSONObject, "meiguyingyee", "ttops");
-                    transfer(map, jsonArrayJSONObject, "meiguyingyeshouru", "tsrps");
-                    transfer(map, jsonArrayJSONObject, "meiguyingyelirun", "opps");
-
-                    transfer(map, jsonArrayJSONObject, "jingzichanshouyilv", "roe");
-                    transfer(map, jsonArrayJSONObject, "zongzichanhuibaolv", "rota");
-                    transfer(map, jsonArrayJSONObject, "maolilv", "gross_selling_rate");
-                    transfer(map, jsonArrayJSONObject, "zichanfuzhailv", "tlia_ta");
-                    transfer(map, jsonArrayJSONObject, "liudongbilv", "cro");
-                    transfer(map, jsonArrayJSONObject, "sudongbilv", "qro");
-                    transfer(map, jsonArrayJSONObject, "cunhuozhuanhuazhouqi", "ivcvspd");
-                    transfer(map, jsonArrayJSONObject, "yingshouzhangkuanzhuanhuazhouqi", "arbcvspd");
-                    transfer(map, jsonArrayJSONObject, "yingfuzhangkuanzhuanhuazhouqi", "apycvspd");
-                }
-
-
-                mapMain.put(i, map);
             }
-
-            page.putField("map", mapMain);
+            processor.process();
 
 
         } else if (!ObjectUtils.isEmpty(page.getRawText())) {
-            if (flag) {
-                return;
-            }
-            Map<String, List<String>> listMap = HttpUtil.decodeParams(url, "utf-8");
-            String market = listMap.get("market").get(0);
-
-
-            String rawText = page.getRawText();
-            JSONObject jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("data").toString();
-            jsonObject = JSON.parseObject(rawText);
-            rawText = jsonObject.get("list").toString();
-            JSONArray jsonArray = JSON.parseArray(rawText);
-
-            List<String> collect = new ArrayList<>();
-
-            String[] urls = new String[0];
-            if ("CN".equals(market)) {
-                urls = URL_PRE;
-            }
-            if ("HK".equals(market)) {
-                urls = URL_PRE_HK;
-            }
-
-            String[] finalUrls = urls;
-            jsonArray.stream().forEach(e -> {
-                JSONObject e1 = (JSONObject) e;
-                String symbol = e1.get("symbol").toString();
-
+            String[] finalUrls = URL_PRE;
+            processPage(page,symbol->{
+                List<String> collect = new ArrayList<>();
                 Arrays.stream(finalUrls).forEach(ee -> {
                     collect.add(String.format(ee, symbol, System.currentTimeMillis()));
                 });
+                return collect;
             });
-            page.addTargetRequests(collect);
-            // update flag
-            Map<String, List<String>> stringListMap = HttpUtil.decodeParams(page.getUrl().toString(), "utf-8");
-            long longPage = Long.parseLong(stringListMap.get("page").get(0));
-            long sum = longPage * Long.parseLong(stringListMap.get("size").get(0));
-            long count = Long.parseLong(jsonObject.get("count").toString());
-            flag = count < sum;
-            // update page
-            // get newurl
-            stringListMap.put("page", Lists.newArrayList(String.valueOf(longPage + 1)));
-            String params = HttpUtil.toParams(stringListMap);
-            String string = page.getUrl().toString();
-            String newUrl = string.substring(0, string.indexOf("?") + 1) + params;
-            page.addTargetRequest(newUrl);
         }
     }
 

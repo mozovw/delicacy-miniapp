@@ -35,21 +35,20 @@ public class CollectDataTask {
     @Scheduled(fixedRate = Integer.MAX_VALUE)
     public void start(){
 //        new Thread(()-> aijijinService.runFundRank()).start();
-////        new Thread(()-> aijijinService.runFundPosition()).start();
+//        new Thread(()-> aijijinService.runFundPosition()).start();
+
+
         new Thread(()-> {
 //            xueQiuService.runAStock();
 //            xueQiuService.runAStockReport();
+//            xueQiuService.runAStockDesc();
+//            xueQiuService.runAStockProfitReport();
+            xueQiuService.runAStockCashFlowReport();
+//            xueQiuService.runAStockBalanceReport();
+//            xueQiuService.runAStockTopHolders();
+//            xueQiuService.runAstockSkHolderChg();
+//            jinrongcaifuService.runForcastReport();
         }).start();
-//        xueQiuService.runAStock();
-//        xueQiuService.runAStockDesc();
-//        xueQiuService.runAStockProfitReport();
-//        xueQiuService.runAStockCashFlowReport();
-//        xueQiuService.runAStockBalanceReport();
-//        xueQiuService.runAStockTopHolders();
-//        xueQiuService.runAstockSkHolderChg();
-        jinrongcaifuService.runForcastReport();
-//        aijijinService.runFundRank();
-//        aijijinService.runFundPosition();
 
     }
 
