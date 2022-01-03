@@ -1,4 +1,4 @@
-package com.delicacy.miniapp.service.service;
+package com.delicacy.miniapp.service.service.spider;
 
 /**
  * @author yutao.zhang

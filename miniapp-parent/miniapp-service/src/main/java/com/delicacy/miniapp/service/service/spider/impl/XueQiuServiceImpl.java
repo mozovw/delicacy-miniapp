@@ -1,19 +1,11 @@
-package com.delicacy.miniapp.service.service.impl;
+package com.delicacy.miniapp.service.service.spider.impl;
 
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import com.delicacy.miniapp.service.processor.xueqiu.*;
 import com.delicacy.miniapp.service.service.AbstractService;
-import com.delicacy.miniapp.service.service.XueQiuService;
-import org.openqa.selenium.WebDriver;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import com.delicacy.miniapp.service.service.spider.XueQiuService;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +56,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBefore4Year(collection);
         Request request = getRequest(URL_ASTOCK);
         StockProfitReportProcessor processor = new StockProfitReportProcessor();
-        List<String> reportList = getReportList(collection,-4);
+        List<String> reportList = getReportList(collection,-5);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");
@@ -90,7 +82,7 @@ public class XueQiuServiceImpl extends AbstractService implements XueQiuService 
         clearBefore4Year(collection);
         Request request = getRequest(URL_ASTOCK);
         StockBalanceReportProcessor processor = new StockBalanceReportProcessor();
-        List<String> reportList = getReportList(collection,-4);
+        List<String> reportList = getReportList(collection,-5);
         processor.setAppointReportDates(reportList.toArray(new String[0]));
         processor.setSite(getSite("xueqiu.com"));
         runSpiderForMap2(request, processor, collection, "symbol", "report_date");

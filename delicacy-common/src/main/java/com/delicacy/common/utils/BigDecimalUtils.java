@@ -35,6 +35,7 @@ public class BigDecimalUtils {
     }
 
     private static String convert(Object object) {
+        if (object instanceof String) return String.valueOf(object);
         Boolean basicType = ObjectUtil.isBasicType(object);
         if (basicType) return String.valueOf(object);
         throw new RuntimeException("数据异常");

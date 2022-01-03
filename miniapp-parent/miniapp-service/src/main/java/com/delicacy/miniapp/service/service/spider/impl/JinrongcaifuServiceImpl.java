@@ -1,10 +1,9 @@
-package com.delicacy.miniapp.service.service.impl;
+package com.delicacy.miniapp.service.service.spider.impl;
 
 import cn.hutool.core.date.DateUtil;
-import com.delicacy.miniapp.service.processor.aijijin.AiFundRankProcessor;
 import com.delicacy.miniapp.service.processor.jinrongcaifu.CaifuForcastReportProcessor;
 import com.delicacy.miniapp.service.service.AbstractService;
-import com.delicacy.miniapp.service.service.JinrongcaifuService;
+import com.delicacy.miniapp.service.service.spider.JinrongcaifuService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;

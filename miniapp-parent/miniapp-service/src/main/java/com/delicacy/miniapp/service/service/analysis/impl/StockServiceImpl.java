@@ -1,9 +1,10 @@
-package com.delicacy.miniapp.service.service.impl;
+package com.delicacy.miniapp.service.service.analysis.impl;
 
-import cn.hutool.core.util.ObjectUtil;
 import com.delicacy.miniapp.service.service.AbstractService;
-import com.delicacy.miniapp.service.service.AnalysisStockService;
+import com.delicacy.miniapp.service.service.analysis.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -19,13 +20,15 @@ import java.util.Map;
  * @create 2021-07-28 15:21
  **/
 @Service
-public class AnalysisStockServiceImpl extends AbstractService implements AnalysisStockService {
+@CacheConfig(cacheNames = {"StockService"}, keyGenerator = "wiselyKeyGenerator")
+public class StockServiceImpl extends AbstractService implements StockService {
 
     @Autowired
     protected MongoTemplate mongoTemplate;
 
 
     @Override
+    @Cacheable
     public List<Map> listByFilter(String... symbols) {
         stock(true);
         Query query = new Query();
@@ -40,6 +43,7 @@ public class AnalysisStockServiceImpl extends AbstractService implements Analysi
     }
 
     @Override
+    @Cacheable
     public List<Map> list(String... symbols) {
         stock(false);
         Query query = new Query();
@@ -63,7 +67,7 @@ public class AnalysisStockServiceImpl extends AbstractService implements Analysi
                     Criteria.where("$where").is("this.shiyinglv_TTM > 0"),
 //                    Criteria.where("$where").is("this.current < 200"),
                     Criteria.where("$where").is("this.shiyinglv_dong * 1 < this.shiyinglv_jing * 1"),
-                    Criteria.where("$where").is("this.shiyinglv_TTM < 120")
+                    Criteria.where("$where").is("this.shiyinglv_TTM < 60")
             ));
         }
 

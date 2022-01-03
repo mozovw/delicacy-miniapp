@@ -3,9 +3,9 @@ package com.delicacy.miniapp.task;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
-import com.delicacy.miniapp.service.service.FinanceComprehensiveService;
-import com.delicacy.miniapp.service.service.FinanceFundSelectionService;
-import com.delicacy.miniapp.service.service.FinanceValuationService;
+import com.delicacy.miniapp.service.service.finance.ComprehensiveService;
+import com.delicacy.miniapp.service.service.finance.FundSelectionService;
+import com.delicacy.miniapp.service.service.finance.MoneyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,35 +20,36 @@ import java.util.function.Consumer;
 @Component
 public class HandleDataTask {
     @Autowired
-    private FinanceComprehensiveService financeComprehensiveService;
+    private ComprehensiveService comprehensiveService;
 
     @Autowired
-    private FinanceFundSelectionService financeFundSelectionService;
+    private FundSelectionService fundSelectionService;
+
 
     @Autowired
-    private FinanceValuationService financeValuationService;
+    private MoneyService moneyService;
 
-//     @Scheduled(fixedRate = Integer.MAX_VALUE)
-    public void start(){
-//          financeValuationService.runValuation();
-//         financeComprehensiveService.runComprehensive();
-//        financeFundSelectionService.runFundSelection();
+    @Scheduled(fixedRate = Integer.MAX_VALUE)
+    public void start() {
+//        moneyService.runTask();
+        comprehensiveService.runTask();
+//        fundSelectionService.runTask();
     }
 
 
-    @Scheduled(cron = "0 0 20 * * ? ")
+    //    @Scheduled(cron = "0 0 20 * * ? ")
     public void startComprehensive() {
-        startAtWeekDay(e -> financeComprehensiveService.runComprehensive());
+        startAtWeekDay(e -> comprehensiveService.runTask());
     }
 
-    @Scheduled(cron = "0 0 16 * * ? ")
+    //    @Scheduled(cron = "0 0 16 * * ? ")
     public void startFundSelection() {
-        startAtWeekDay(e -> financeFundSelectionService.runFundSelection());
+        startAtWeekDay(e -> fundSelectionService.runTask());
     }
 
-    @Scheduled(cron = "0 0 20 * * ? ")
+    //    @Scheduled(cron = "0 0 20 * * ? ")
     public void startValuation() {
-        startAtWeekDay(e -> financeValuationService.runValuation());
+        startAtWeekDay(e -> moneyService.runTask());
     }
 
     private void randomTime() {

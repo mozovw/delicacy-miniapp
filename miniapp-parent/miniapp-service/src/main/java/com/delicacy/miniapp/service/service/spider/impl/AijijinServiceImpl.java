@@ -1,9 +1,9 @@
-package com.delicacy.miniapp.service.service.impl;
+package com.delicacy.miniapp.service.service.spider.impl;
 
 import com.delicacy.miniapp.service.processor.aijijin.AiFundPositionProcessor;
 import com.delicacy.miniapp.service.processor.aijijin.AiFundRankProcessor;
 import com.delicacy.miniapp.service.service.AbstractService;
-import com.delicacy.miniapp.service.service.AijijinService;
+import com.delicacy.miniapp.service.service.spider.AijijinService;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 

@@ -1,4 +1,4 @@
-package com.delicacy.miniapp.service.service;
+package com.delicacy.miniapp.service.service.analysis;
 
 import java.util.List;
 import java.util.Map;
@@ -7,12 +7,10 @@ import java.util.Map;
  * @author yutao.zhang
  * @create 2021-07-29 10:11
  **/
-public interface AnalysisFundRankPositionService {
+public interface FundRankPositionService extends AnalysisService{
 
 
     List<List<Map>> list();
-
-    List<Map> list(String... symbols);
 
 
 }

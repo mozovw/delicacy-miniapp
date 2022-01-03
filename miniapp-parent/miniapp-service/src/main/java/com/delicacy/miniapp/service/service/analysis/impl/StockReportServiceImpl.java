@@ -1,11 +1,10 @@
-package com.delicacy.miniapp.service.service.impl;
+package com.delicacy.miniapp.service.service.analysis.impl;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.unit.DataUnit;
 import com.delicacy.miniapp.service.entity.ControlParam;
 import com.delicacy.miniapp.service.service.AbstractService;
-import com.delicacy.miniapp.service.service.AnalysisStockReportService;
+import com.delicacy.miniapp.service.service.analysis.StockReportService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
  * @create 2021-07-28 15:21
  **/
 @Service
-public class AnalysisStockReportServiceImpl extends AbstractService implements AnalysisStockReportService {
+public class StockReportServiceImpl extends AbstractService implements StockReportService {
 
     @Autowired
     protected MongoTemplate mongoTemplate;
@@ -146,13 +145,12 @@ public class AnalysisStockReportServiceImpl extends AbstractService implements A
                     objects.add(String.format("%s_%s_%s",
                             e.getKey(), map1.get("name"),
                             map1.get("report_date")));
-//                    addData(map1, analysis_table, "symbol", "name", "report_date");
                     addData(map1, analysis_table);
                 }
 
             }
         });
-        objects.forEach(System.out::println);
+//        objects.forEach(System.out::println);
 
     }
 

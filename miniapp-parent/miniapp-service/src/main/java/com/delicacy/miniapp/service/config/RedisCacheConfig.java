@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -32,7 +33,7 @@ public class RedisCacheConfig {
         concurrentMapCacheManager.setAllowNullValues(false);
         RedisCacheManager redisCacheManager = new RedisCacheManager(
                 RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory),
-                this.getRedisCacheConfigurationWithTtl(7 * 24 * 60 * 60) // 默认策略，未配置的 key 会使用这个
+                this.getRedisCacheConfigurationWithTtl(12 * 60 * 60) // 默认策略，未配置的 key 会使用这个
         );
         return new CompositeCacheManager(/*concurrentMapCacheManager,*/ redisCacheManager);
     }
@@ -54,7 +55,7 @@ public class RedisCacheConfig {
         return redisCacheConfiguration;
     }
 
-    @Bean
+    @Bean(name = "wiselyKeyGenerator")
     public KeyGenerator wiselyKeyGenerator() {
         return (target, method, params) -> {
             StringBuilder sb = new StringBuilder();

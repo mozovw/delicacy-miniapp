@@ -3,9 +3,9 @@ package com.delicacy.miniapp.task;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
-import com.delicacy.miniapp.service.service.AijijinService;
-import com.delicacy.miniapp.service.service.JinrongcaifuService;
-import com.delicacy.miniapp.service.service.XueQiuService;
+import com.delicacy.miniapp.service.service.spider.AijijinService;
+import com.delicacy.miniapp.service.service.spider.JinrongcaifuService;
+import com.delicacy.miniapp.service.service.spider.XueQiuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,7 +27,6 @@ public class CollectDataTask {
     @Autowired
     private XueQiuService xueQiuService;
 
-
     @Autowired
     private JinrongcaifuService jinrongcaifuService;
 
@@ -42,9 +41,9 @@ public class CollectDataTask {
 //            xueQiuService.runAStock();
 //            xueQiuService.runAStockReport();
 //            xueQiuService.runAStockDesc();
-//            xueQiuService.runAStockProfitReport();
-            xueQiuService.runAStockCashFlowReport();
-//            xueQiuService.runAStockBalanceReport();
+            xueQiuService.runAStockProfitReport();
+//            xueQiuService.runAStockCashFlowReport();
+            xueQiuService.runAStockBalanceReport();
 //            xueQiuService.runAStockTopHolders();
 //            xueQiuService.runAstockSkHolderChg();
 //            jinrongcaifuService.runForcastReport();

@@ -1,9 +1,9 @@
-package com.delicacy.miniapp.service.service.impl;
+package com.delicacy.miniapp.service.service.analysis.impl;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.delicacy.miniapp.service.service.AbstractService;
-import com.delicacy.miniapp.service.service.AnalysisFundRankPositionService;
+import com.delicacy.miniapp.service.service.analysis.FundRankPositionService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,18 +19,10 @@ import java.util.stream.Collectors;
  * @create 2021-07-28 15:21
  **/
 @Service
-public class AnalysisFundRankPositionServiceImpl extends AbstractService implements AnalysisFundRankPositionService {
+public class FundRankPositionServiceImpl extends AbstractService implements FundRankPositionService {
 
     @Autowired
     protected MongoTemplate mongoTemplate;
-
-//    @Override
-//    public List<Object> list() {
-//        Query query = new Query();
-//        List<Map> maps = mongoTemplate.find(query, Map.class, "analysis_astock_report");
-//        List<Object> symbols = maps.stream().map(e -> e.get("symbol")).collect(Collectors.toList());
-//        return symbols;
-//    }
 
     @Override
     public List<Map> list(String... symbols) {

@@ -1,12 +1,12 @@
-package com.delicacy.miniapp.service.service.impl;
+package com.delicacy.miniapp.service.service.finance.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.delicacy.common.utils.BigDecimalUtils;
 import com.delicacy.miniapp.service.entity.PageResult;
 import com.delicacy.miniapp.service.service.AbstractService;
-import com.delicacy.miniapp.service.service.AnalysisFundRankPositionService;
-import com.delicacy.miniapp.service.service.AnalysisStockService;
-import com.delicacy.miniapp.service.service.FinanceFundSelectionService;
+import com.delicacy.miniapp.service.service.analysis.FundRankPositionService;
+import com.delicacy.miniapp.service.service.analysis.StockService;
+import com.delicacy.miniapp.service.service.finance.FundSelectionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -21,21 +21,21 @@ import java.util.stream.Collectors;
  **/
 @Slf4j
 @Service
-public class FinanceFundSelectionServiceImpl extends AbstractService implements FinanceFundSelectionService {
+public class FundSelectionServiceImpl extends AbstractService implements FundSelectionService {
 
     @Autowired
     protected MongoTemplate mongoTemplate;
 
     @Autowired
-    private AnalysisFundRankPositionService analysisFundRankPositionService;
+    private FundRankPositionService analysisFundRankPositionService;
 
     @Autowired
-    private AnalysisStockService analysisStockService;
+    private StockService analysisStockService;
 
     final static String FINANCE_FUNDSELECTION = "finance_fundselection";
 
     @Override
-    public void runFundSelection() {
+    public void runTask() {
         dropCollection(FINANCE_FUNDSELECTION);
         List<List<Map>> lists = analysisFundRankPositionService.list();
         Map<String, Integer> keyValue = new HashMap<>();
@@ -187,7 +187,7 @@ public class FinanceFundSelectionServiceImpl extends AbstractService implements 
 
 
     @Override
-    public PageResult<Map> pageFundSelection(Map params) {
+    public PageResult<Map> page(Map params) {
         PageResult<Map> mapPageResult = getMapPageResult(params, FINANCE_FUNDSELECTION);
         return mapPageResult;
     }
