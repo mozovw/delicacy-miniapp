@@ -43,7 +43,6 @@ public class RedisCacheConfig {
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
-        // om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(om);
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
         redisCacheConfiguration = redisCacheConfiguration.serializeValuesWith(
@@ -59,8 +58,9 @@ public class RedisCacheConfig {
     public KeyGenerator wiselyKeyGenerator() {
         return (target, method, params) -> {
             StringBuilder sb = new StringBuilder();
-            sb.append(target.getClass().getName());
-            sb.append(":").append(method.getName());
+//            sb.append(target.getClass().getName());
+//            sb.append(":");
+            sb.append(method.getName());
             if (params.length == 0 || params[0] == null) {
                 return sb.toString();
             }

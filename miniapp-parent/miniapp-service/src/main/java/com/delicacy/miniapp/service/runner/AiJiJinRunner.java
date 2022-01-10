@@ -44,7 +44,7 @@ public class AiJiJinRunner extends AbstractRunner {
                     .thread(threadNum)
                     .addRequest(request)
                     .addPipeline(new ConsolePipeline())
-                    .addPipeline(new Map2MongoPipeline(mongoTemplate, "aijijin_fund_position","data_update_time","fund_code","gupiaodaima"))
+                    .addPipeline(new Map2MongoPipeline(mongoTemplate, "aijijin_fund_position","data_update_time","fund_code","symbol"))
                     .run();
         }
 

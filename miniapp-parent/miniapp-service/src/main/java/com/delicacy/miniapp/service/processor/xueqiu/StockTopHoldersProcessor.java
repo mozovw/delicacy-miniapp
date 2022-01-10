@@ -17,6 +17,7 @@ import us.codecraft.webmagic.Page;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class StockTopHoldersProcessor extends AbstactProcessor {
@@ -24,14 +25,14 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
 
     static final String URL_POST = "https://stock.xueqiu.com/v5/stock/f10/";
 
-
-    static final String URL_PRE_HK[] = {
-
-    };
-
     static final String URL_PRE[] = {
-            "https://stock.xueqiu.com/v5/stock/f10/cn/top_holders.json?symbol=%s&locate=%s",
+            "https://stock.xueqiu.com/v5/stock/f10/cn/top_holders.json?symbol=%s&circula=1&count=200"
     };
+
+    static final String URL_PRE_2[] = {
+            "https://stock.xueqiu.com/v5/stock/f10/cn/top_holders.json?symbol=%s&locate=%s&start=%s&circula=1"
+    };
+
 
 
     @Override
@@ -50,7 +51,7 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
             }
             JSONArray jsonArray = jsonObject.getJSONArray("items");
             if(jsonArray.size()==0){
-                jsonArray = jsonObject.getJSONArray("quit");
+                return;
             }
             JSONArray timesJSONArray = jsonObject.getJSONArray("times");
             JSONObject timesJSONObject = timesJSONArray.getJSONObject(0);
@@ -58,7 +59,7 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
 
             PageProcessor processor = new PageProcessor(page,jsonArray);
             for (int i = 0; i < jsonArray.size(); i++) {
-                processor.putmap(i,"symbol", symbol.replace("SH", "").replace("SZ", ""));
+                processor.putmap(i,"symbol", getRealSymbol(symbol));
 
                 if (url.contains("cn")) {
                     processor.putmap(i,"report_date", String.valueOf(reportDate));
@@ -84,20 +85,7 @@ public class StockTopHoldersProcessor extends AbstactProcessor {
         }
     }
 
-    protected List<Long> getTimestampList() {
-        List<Long> list = new ArrayList<>();
-        for (int i = 1; i <= 12; i++) {
-            DateTime offset = DateUtil.offset(DateTime.now(), DateField.MONTH, -i);
-            String format = DateUtil.format(offset, "MM");
-            int month = Integer.parseInt(format);
-            if (month==12||month==3||month==6||month==9){
-                DateTime dateTime = DateUtil.endOfMonth(offset);
-                Long time = DateUtil.parseDateTime(DateUtil.format(dateTime, "yyyy-MM-dd") + " 00:00:00").getTime();
-                list.add( time);
-            }
-        }
-        return list;
-    }
+
 
 
 

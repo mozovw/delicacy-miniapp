@@ -61,7 +61,7 @@ public class StockBalanceReportProcessor extends AbstactProcessor {
             PageProcessor processor = new PageProcessor(page,jsonArray);
 
             for (int i = 0; i < jsonArray.size(); i++) {
-                processor.putmap(i,"symbol", symbol.replace("SH", "").replace("SZ", ""));
+                processor.putmap(i,"symbol", getRealSymbol(symbol));
                 processor.putmap(i,"name",String.valueOf(quote_name));
                 if (url.contains("cn")) {
                     processor.transfer(i,"report_date", "report_name");

@@ -29,9 +29,11 @@ public class StockDescProcessor extends AbstactProcessor {
         if (page.getUrl().get().contains(URL_POST)) {
             JSONObject jsonObject = page.getJson().toObject(JSONObject.class);
             Object platename = jsonObject.get("platename");
-            if (ObjectUtil.isEmpty(platename))return;
+            if (ObjectUtil.isEmpty(platename)){
+                return;
+            }
             PageProcessor pageProcessor = new PageProcessor(page, jsonObject);
-            pageProcessor.transfer("symbol", "code");
+            pageProcessor.getPage().putField("symbol",getRealSymbol(jsonObject.get("code").toString()));
             pageProcessor.transfer("platename", "platename");
 
         } else if (!ObjectUtils.isEmpty(page.getRawText())) {

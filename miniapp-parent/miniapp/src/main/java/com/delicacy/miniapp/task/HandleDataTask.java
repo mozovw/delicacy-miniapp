@@ -3,9 +3,7 @@ package com.delicacy.miniapp.task;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
-import com.delicacy.miniapp.service.service.finance.ComprehensiveService;
-import com.delicacy.miniapp.service.service.finance.FundSelectionService;
-import com.delicacy.miniapp.service.service.finance.MoneyService;
+import com.delicacy.miniapp.service.service.finance.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,17 +21,24 @@ public class HandleDataTask {
     private ComprehensiveService comprehensiveService;
 
     @Autowired
-    private FundSelectionService fundSelectionService;
-
+    private PegService pegService;
 
     @Autowired
-    private MoneyService moneyService;
+    private TopHoldersSerivice topHolderSerivice;
+
+    @Autowired
+    private SkHolderSerivice skHolderSerivice;
+
+    @Autowired
+    private ValuationService valuationService;
 
     @Scheduled(fixedRate = Integer.MAX_VALUE)
     public void start() {
-//        moneyService.runTask();
-        comprehensiveService.runTask();
-//        fundSelectionService.runTask();
+//        valuationService.runTask();
+//        comprehensiveService.runTask();
+//        pegService.runTask();
+//        topHolderSerivice.runTask();
+//        skHolderSerivice.runTask();
     }
 
 
@@ -42,14 +47,9 @@ public class HandleDataTask {
         startAtWeekDay(e -> comprehensiveService.runTask());
     }
 
-    //    @Scheduled(cron = "0 0 16 * * ? ")
-    public void startFundSelection() {
-        startAtWeekDay(e -> fundSelectionService.runTask());
-    }
-
     //    @Scheduled(cron = "0 0 20 * * ? ")
     public void startValuation() {
-        startAtWeekDay(e -> moneyService.runTask());
+        startAtWeekDay(e -> valuationService.runTask());
     }
 
     private void randomTime() {

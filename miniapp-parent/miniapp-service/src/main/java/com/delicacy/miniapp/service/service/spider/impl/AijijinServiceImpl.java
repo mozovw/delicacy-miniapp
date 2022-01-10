@@ -31,6 +31,6 @@ public class AijijinServiceImpl extends AbstractService implements AijijinServic
         Request request = getRequest(url);
         AiFundPositionProcessor processor = new AiFundPositionProcessor();
         processor.setSite(getSite("fund.10jqka.com.cn").setTimeOut(10000));
-        runSpiderForMap2(request, processor, "aijijin_fund_position", "data_update_time", "fund_code", "gupiaodaima");
+        runSpiderForMap2(request, processor, "aijijin_fund_position", "data_update_time", "fund_code", "symbol");
     }
 }

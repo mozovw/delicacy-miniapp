@@ -38,12 +38,12 @@ public class CollectDataTask {
 
 
         new Thread(()-> {
-//            xueQiuService.runAStock();
+            xueQiuService.runAStock();
 //            xueQiuService.runAStockReport();
 //            xueQiuService.runAStockDesc();
-            xueQiuService.runAStockProfitReport();
+//            xueQiuService.runAStockProfitReport();
 //            xueQiuService.runAStockCashFlowReport();
-            xueQiuService.runAStockBalanceReport();
+//            xueQiuService.runAStockBalanceReport();
 //            xueQiuService.runAStockTopHolders();
 //            xueQiuService.runAstockSkHolderChg();
 //            jinrongcaifuService.runForcastReport();

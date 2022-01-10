@@ -51,7 +51,7 @@ public class AiFundPositionProcessor extends AbstactProcessor {
 
                 List<String> strings = HttpUtil.decodeParams(li.get(1).$("a", "href").get(), "utf-8").get("param");
                 if (!isEmpty(strings)) {
-                    map.put("gupiaodaima", strings.get(0).replace("'", ""));
+                    map.put("symbol", strings.get(0).replace("'", ""));
                 }
 
                 map.put("gupiaomingcheng", li.get(1).$("li a", "text").get());

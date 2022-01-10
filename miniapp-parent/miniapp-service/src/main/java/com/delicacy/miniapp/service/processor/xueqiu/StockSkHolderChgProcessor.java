@@ -43,7 +43,6 @@ public class StockSkHolderChgProcessor extends AbstactProcessor {
             Map<String, List<String>> stringListMap = HttpUtil.decodeParams(url, "utf-8");
             String symbol = stringListMap.get("symbol").get(0);
 
-
             JSONObject jsonObject = page.getJson().toObject(JSONObject.class).getJSONObject("data");
             if (jsonObject == null) {
                 return;
@@ -53,12 +52,18 @@ public class StockSkHolderChgProcessor extends AbstactProcessor {
 
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonArrayJSONObject = jsonArray.getJSONObject(i);
-                processor.putmap(i,"symbol", symbol.replace("SH", "").replace("SZ", ""));
+                processor.putmap(i,"symbol", getRealSymbol(symbol));
                 if (url.contains("cn")) {
                     processor.transfer(i, "gongsi","name");
                     processor.transfer(i, "mingcheng","manage_name");
                     processor.transfer(i, "zhiwei","duty");
-                    processor.getmap(i).put("biandongriqi",jsonArrayJSONObject.get("chg_date")==null?"":DateUtil.formatDate(new Date(Long.parseLong(jsonArrayJSONObject.get("chg_date").toString()))));
+                    final Date chgDate = new Date(Long.parseLong(jsonArrayJSONObject.get("chg_date").toString()));
+                    final String chg_date = DateUtil.formatDate(chgDate);
+                    if (DateUtil.betweenDay(chgDate,new Date(),false)>183) {
+                        processor.getmap(i).clear();
+                        continue;
+                    }
+                    processor.getmap(i).put("biandongriqi",jsonArrayJSONObject.get("chg_date")==null?"": chg_date);
                     processor.transfer(i,  "biandonggushu","chg_shares_num");
                     processor.transfer(i,  "junjia","trans_avg_price");
                 }
@@ -77,22 +82,6 @@ public class StockSkHolderChgProcessor extends AbstactProcessor {
             });
         }
     }
-
-    protected List<Long> getTimestampList() {
-        List<Long> list = new ArrayList<>();
-        for (int i = 1; i <= 12; i++) {
-            DateTime offset = DateUtil.offset(DateTime.now(), DateField.MONTH, -i);
-            String format = DateUtil.format(offset, "MM");
-            int month = Integer.parseInt(format);
-            if (month==12||month==3||month==6||month==9){
-                DateTime dateTime = DateUtil.endOfMonth(offset);
-                Long time = DateUtil.parseDateTime(DateUtil.format(dateTime, "yyyy-MM-dd") + " 00:00:00").getTime();
-                list.add( time);
-            }
-        }
-        return list;
-    }
-
 
 
 

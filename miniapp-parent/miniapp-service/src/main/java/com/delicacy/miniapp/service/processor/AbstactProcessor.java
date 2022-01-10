@@ -59,6 +59,13 @@ public abstract class AbstactProcessor implements PageProcessor {
         System.getProperties().setProperty("webdriver.chrome.driver", path);
     }
 
+    protected String getRealSymbol(String val){
+        if (isEmpty(val)){
+            return "";
+        }
+        return val.replace("SH", "").replace("SZ", "");
+    }
+
     protected void processPage(Page page, Function<Object, List<String>> function) {
         String rawText = page.getRawText();
         JSONObject jsonObject = JSON.parseObject(rawText);
@@ -83,19 +90,21 @@ public abstract class AbstactProcessor implements PageProcessor {
             return function.apply(symbol);
         }).collect(Collectors.toList());
         collect.forEach(page::addTargetRequests);
-        //todo update flag
+
         Map<String, List<String>> stringListMap = HttpUtil.decodeParams(page.getUrl().toString(), "utf-8");
         long longPage = Long.parseLong(stringListMap.get("page").get(0));
-//        long sum = longPage * Long.parseLong(stringListMap.get("size").get(0));
-//        long count = Long.parseLong(jsonObject.get("count").toString());
-        //todo update page
-        //todo get newurl
         stringListMap.put("page", Lists.newArrayList(String.valueOf(longPage + 1)));
         String params = HttpUtil.toParams(stringListMap);
         String string = page.getUrl().toString();
         String newUrl = string.substring(0, string.indexOf("?") + 1) + params;
         page.addTargetRequest(newUrl);
     }
+
+    protected void processPage(Page page,List<String> symbols, Function<Object, List<String>> function) {
+        List<List<String>> collect = symbols.stream().map(function::apply).collect(Collectors.toList());
+        collect.forEach(page::addTargetRequests);
+    }
+
 
     @SneakyThrows
     protected String json(Object o) {
@@ -336,6 +345,9 @@ public abstract class AbstactProcessor implements PageProcessor {
             if (jsonObject != null && page != null) {
                 transfer(page, jsonObject, a, b);
             }
+        }
+        public Page getPage(){
+            return this.page;
         }
     }
 
